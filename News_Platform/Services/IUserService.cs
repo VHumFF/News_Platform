@@ -10,7 +10,7 @@ namespace News_Platform.Services
         Task UpdateUserAsync(User user);
         Task DeleteUserAsync(long id);
         Task RegisterUserAccount(News_Platform.DTOs.RegisterRequest registerRequest);
-        Task<User?> LoginUser(News_Platform.DTOs.LoginRequest loginRequest);
+        Task<String?> LoginUser(News_Platform.DTOs.LoginRequest loginRequest);
 
     }
 }

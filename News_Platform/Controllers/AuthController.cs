@@ -2,6 +2,7 @@
 
 using News_Platform.Services;
 using News_Platform.DTOs;
+using Microsoft.AspNetCore.Authorization;
 namespace News_Platform.Controllers
 {
     [Route("api/[controller]")]
@@ -15,6 +16,7 @@ namespace News_Platform.Controllers
             _userService = userService;
         }
 
+        [AllowAnonymous]
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest loginRequest)
         {
@@ -23,17 +25,17 @@ namespace News_Platform.Controllers
                 return BadRequest("Invalid request data.");
             }
 
-            var user = await _userService.LoginUser(loginRequest);
-            if (user == null)
+            String jwt = await _userService.LoginUser(loginRequest);
+            if (jwt == null)
             {
                 return Unauthorized("Invalid email or password.");
             }
 
-            return Ok("Login successful");
+            return Ok(jwt);
         }
 
 
-
+        [Authorize]
         [HttpGet("users")]
         public async Task<IActionResult> GetUsers()
         {

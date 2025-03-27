@@ -8,9 +8,13 @@ namespace News_Platform.Services
     {
         private readonly IUserRepository _userRepository;
 
-        public UserService(IUserRepository userRepository)
+        private readonly JWTUtility _jwtUtility;
+
+
+        public UserService(IUserRepository userRepository, JWTUtility jwtUtility)
         {
             _userRepository = userRepository;
+            _jwtUtility = jwtUtility;
         }
 
 
@@ -27,16 +31,23 @@ namespace News_Platform.Services
             await CreateUserAsync(user);
         }
 
-        public async Task<User?> LoginUser(LoginRequest loginRequest)
+        public async Task<string?> LoginUser(LoginRequest loginRequest)
         {
+            if (loginRequest == null || string.IsNullOrEmpty(loginRequest.Email) || string.IsNullOrEmpty(loginRequest.Password))
+            {
+                throw new ArgumentException("Invalid login request.");
+            }
+
             User? user = await GetUserByEmailAsync(loginRequest.Email);
+
             if (user == null || !PasswordUtility.VerifyPassword(loginRequest.Password, user.PasswordHash))
             {
                 return null;
             }
 
-            return user;
+            return _jwtUtility.GenerateToken(user.UserID, user.Role);
         }
+
 
 
         public async Task<IEnumerable<User>> GetAllUsersAsync()

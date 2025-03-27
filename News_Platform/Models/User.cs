@@ -26,6 +26,8 @@ public class User
     [MaxLength(255)]
     public string PasswordHash { get; set; }
 
+    public long Role { get; set; } = 0; // 0 for normal user, 1 for journalist, 2 for admin
+
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 }
