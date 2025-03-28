@@ -27,10 +27,19 @@ namespace News_Platform.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetArticleById(long id)
         {
- 
-            var article = await _articleService.GetArticle(id);
+            long? userId = null;
 
- 
+            if (User.Identity.IsAuthenticated)
+            {
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (!string.IsNullOrEmpty(userIdClaim) && long.TryParse(userIdClaim, out long parsedUserId))
+                {
+                    userId = parsedUserId;
+                }
+            }
+
+            var article = await _articleService.GetArticle(id, userId);
+
             if (article == null)
             {
                 return NotFound(new { message = "Article not found" });
@@ -38,6 +47,8 @@ namespace News_Platform.Controllers
 
             return Ok(article);
         }
+
+
 
         [HttpPost]
         [Authorize]

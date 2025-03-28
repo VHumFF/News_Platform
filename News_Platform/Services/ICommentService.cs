@@ -6,7 +6,7 @@ namespace News_Platform.Services
 {
     public interface ICommentService
     {
-        Task<List<CommentDto>> GetCommentsByArticleIdAsync(long articleId);
+        Task<List<CommentDto>> GetCommentsByArticleIdAsync(long articleId, long? userId);
         Task<bool> AddCommentAsync(long articleId, long userId, string content, long? parentCommentId);
         Task<bool> DeleteCommentAsync(long commentId, long userId);
     }

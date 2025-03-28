@@ -11,7 +11,7 @@ namespace News_Platform.Services
         Task<Article?> GetArticleBySlugAsync(string slug);
         Task AddArticleAsync(Article article);
         Task DeleteArticleAsync(long id);
-        Task<ArticleDto> GetArticle(long id);
+        Task<ArticleDto> GetArticle(long id, long? userId);
         Task<ArticleDto> AddArticleAsync(string title, string content, long categoryId, string imageUrl, long userId);
         Task<bool> UpdateArticleAsync(long articleId, string title, string content, long categoryId, long authorId);
         Task<bool> DeleteArticleAsync(long articleId, long userId);

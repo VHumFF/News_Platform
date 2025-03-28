@@ -45,7 +45,7 @@ namespace News_Platform.Services
         }
 
 
-        public async Task<ArticleDto> GetArticle(long id)
+        public async Task<ArticleDto> GetArticle(long id, long? userId)
         {
             var article = await _articleRepository.GetArticleByIdAsync(id);
             if (article == null)
@@ -54,6 +54,12 @@ namespace News_Platform.Services
             }
 
             int likeCount = await _likeRepository.GetLikeCountByArticleIdAsync(id);
+            bool hasLiked = false;
+
+            if (userId.HasValue)
+            {
+                hasLiked = await _likeRepository.UserHasLikedArticleAsync(userId.Value, id);
+            }
 
             return new ArticleDto
             {
@@ -71,9 +77,11 @@ namespace News_Platform.Services
                 TotalViews = article.TotalViews,
                 Last24HoursViews = article.Last24HoursViews,
                 Last7DaysViews = article.Last7DaysViews,
-                LikeCount = likeCount
+                LikeCount = likeCount,
+                IsLiked = hasLiked
             };
         }
+
 
 
         public async Task<ArticleDto> AddArticleAsync(string title, string content, long categoryId, string imageUrl, long userId)

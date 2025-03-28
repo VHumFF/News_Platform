@@ -22,7 +22,7 @@ namespace News_Platform.Services
             _userRepository = userRepository;
         }
 
-        public async Task<List<CommentDto>> GetCommentsByArticleIdAsync(long articleId)
+        public async Task<List<CommentDto>> GetCommentsByArticleIdAsync(long articleId, long? userId)
         {
             var comments = await _commentRepository.GetCommentsByArticleIdAsync(articleId);
 
@@ -35,9 +35,11 @@ namespace News_Platform.Services
                 Content = c.Content,
                 CreatedAt = c.CreatedAt,
                 AuthorName = c.User != null ? $"{c.User.FirstName} {c.User.LastName}" : "Unknown User",
-                LikeCount = c.Likes.Count
+                LikeCount = c.Likes.Count,
+                IsLiked = userId.HasValue && c.Likes.Any(l => l.UserID == userId.Value)
             }).ToList();
         }
+
 
 
 

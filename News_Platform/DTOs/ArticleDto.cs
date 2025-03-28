@@ -22,6 +22,7 @@ namespace News_Platform.DTOs
         public long Last24HoursViews { get; set; } = 0;
         public long Last7DaysViews { get; set; } = 0;
         public DateTime? PublishedAt { get; set; }
+        public bool IsLiked { get; set; }
 
     }
 }

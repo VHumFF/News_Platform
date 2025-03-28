@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using News_Platform.Services;
 using News_Platform.DTOs;
+using System.Security.Claims;
 
 namespace News_Platform.Controllers
 {
@@ -19,7 +20,18 @@ namespace News_Platform.Controllers
         [HttpGet("{articleId}")]
         public async Task<IActionResult> GetCommentsByArticleId(long articleId)
         {
-            var comments = await _commentService.GetCommentsByArticleIdAsync(articleId);
+            long? userId = null;
+
+            if (User.Identity.IsAuthenticated)
+            {
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (!string.IsNullOrEmpty(userIdClaim) && long.TryParse(userIdClaim, out long parsedUserId))
+                {
+                    userId = parsedUserId;
+                }
+            }
+
+            var comments = await _commentService.GetCommentsByArticleIdAsync(articleId, userId);
             return Ok(comments);
         }
 
