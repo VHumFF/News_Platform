@@ -56,6 +56,8 @@ builder.Services.AddSingleton<JWTUtility>(provider =>
     return new JWTUtility(config);
 });
 
+builder.Services.AddSingleton<IS3Service, S3Service>();
+
 
 
 var app = builder.Build();
