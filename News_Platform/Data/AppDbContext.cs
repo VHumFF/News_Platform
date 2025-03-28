@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Reflection.Emit;
 using Microsoft.EntityFrameworkCore;
+using News_Platform.Models;
 namespace News_Platform.Data
 {
     
@@ -10,6 +11,7 @@ namespace News_Platform.Data
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
         public DbSet<User> Users { get; set; } // Maps to Users table
+        public DbSet<Article> Articles { get; set; } // Maps to Articles table
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
