@@ -10,15 +10,18 @@ namespace News_Platform.Services
         private readonly IArticleRepository _articleRepository;
         private readonly IUserRepository _userRepository;
         private readonly ICategoryRepository _categoryRepository;
+        private readonly ILikeRepository _likeRepository;
 
         public ArticleService(
          IArticleRepository articleRepository,
          IUserRepository userRepository,
-         ICategoryRepository categoryRepository)
+         ICategoryRepository categoryRepository,
+         ILikeRepository likeRepository)
         {
             _articleRepository = articleRepository;
             _userRepository = userRepository;
             _categoryRepository = categoryRepository;
+            _likeRepository = likeRepository;
         }
 
         public async Task<List<TrendingArticleDto>> GetTrendingArticlesAsync(int limit = 10)
@@ -50,6 +53,8 @@ namespace News_Platform.Services
                 return null;
             }
 
+            int likeCount = await _likeRepository.GetLikeCountByArticleIdAsync(id);
+
             return new ArticleDto
             {
                 ArticleID = article.ArticleID,
@@ -65,9 +70,11 @@ namespace News_Platform.Services
                 Status = article.Status,
                 TotalViews = article.TotalViews,
                 Last24HoursViews = article.Last24HoursViews,
-                Last7DaysViews = article.Last7DaysViews
+                Last7DaysViews = article.Last7DaysViews,
+                LikeCount = likeCount
             };
         }
+
 
         public async Task<ArticleDto> AddArticleAsync(string title, string content, long categoryId, string imageUrl, long userId)
         {

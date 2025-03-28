@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using News_Platform.DTOs;
 using News_Platform.Models;
 using News_Platform.Repositories;
@@ -25,11 +26,6 @@ namespace News_Platform.Services
         {
             var comments = await _commentRepository.GetCommentsByArticleIdAsync(articleId);
 
-            if (comments == null || !comments.Any())
-            {
-                return new List<CommentDto>(); // Return an empty list instead of null
-            }
-
             return comments.Select(c => new CommentDto
             {
                 CommentID = c.CommentID,
@@ -38,9 +34,12 @@ namespace News_Platform.Services
                 ParentCommentID = c.ParentCommentID,
                 Content = c.Content,
                 CreatedAt = c.CreatedAt,
-                AuthorName = c.User != null ? $"{c.User.FirstName} {c.User.LastName}" : "Unknown User"
+                AuthorName = c.User != null ? $"{c.User.FirstName} {c.User.LastName}" : "Unknown User",
+                LikeCount = c.Likes.Count
             }).ToList();
         }
+
+
 
 
 

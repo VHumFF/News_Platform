@@ -20,9 +20,14 @@ namespace News_Platform.Repositories
             return await _context.Comments
                 .Where(c => c.ArticleID == articleId)
                 .Include(c => c.User)
+                .Include(c => c.Likes)
                 .OrderByDescending(c => c.CreatedAt)
                 .ToListAsync();
         }
+
+
+
+
 
 
 

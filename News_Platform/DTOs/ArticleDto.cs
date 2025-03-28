@@ -17,6 +17,7 @@ namespace News_Platform.DTOs
         public string CategoryName { get; set; }
         public string ImageURL { get; set; }
         public long Status { get; set; } = 0;
+        public int LikeCount { get; set; }
         public long TotalViews { get; set; } = 0;
         public long Last24HoursViews { get; set; } = 0;
         public long Last7DaysViews { get; set; } = 0;
