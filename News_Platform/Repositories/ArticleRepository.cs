@@ -18,6 +18,7 @@ namespace News_Platform.Repositories
         public async Task<List<Article>> GetTrendingArticlesAsync(int limit = 20)
         {
             var trendingArticles = await _context.Articles
+                .Where(a => a.Status == 1)
                 .OrderByDescending(a => a.Last24HoursViews)
                 .ThenByDescending(a => a.Last7DaysViews)
                 .ThenByDescending(a => a.TotalViews)

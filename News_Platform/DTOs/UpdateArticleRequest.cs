@@ -2,7 +2,7 @@
 
 namespace News_Platform.DTOs
 {
-    public class CreateArticleRequest
+    public class UpdateArticleRequest
     {
         [Required(ErrorMessage = "Title is required.")]
         [StringLength(100, ErrorMessage = "Title cannot be longer than 100 characters.")]
@@ -15,8 +15,5 @@ namespace News_Platform.DTOs
         [Required(ErrorMessage = "Category ID is required.")]
         [Range(1, long.MaxValue, ErrorMessage = "Invalid Category")]
         public long CategoryID { get; set; }
-
-        [Url(ErrorMessage = "Invalid URL format.")]
-        public string ImageURL { get; set; }
     }
 }

@@ -45,7 +45,12 @@ namespace News_Platform.Controllers
         {
 
             var userId = long.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            var role = long.Parse(User.FindFirst("role")?.Value);
 
+            if (role != 2)
+            {
+                return Forbid();
+            }
 
             try
             {
@@ -64,5 +69,121 @@ namespace News_Platform.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpPut("{articleId}")]
+        [Authorize]
+        public async Task<IActionResult> UpdateArticle(long articleId, [FromBody] UpdateArticleRequest request)
+        {
+            var userId = long.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            var role = long.Parse(User.FindFirst("role")?.Value);
+
+            if (role != 2)
+            {
+                return Forbid();
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var result = await _articleService.UpdateArticleAsync(articleId, request.Title, request.Content, request.CategoryID, userId);
+
+                if (!result)
+                {
+                    return NotFound("Article not found or update failed.");
+                }
+
+                return Ok("Article updated successfully.");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Forbid(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpDelete("{articleId}")]
+        [Authorize]
+        public async Task<IActionResult> DeleteArticle(long articleId)
+        {
+            var userId = long.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            var role = long.Parse(User.FindFirst("role")?.Value);
+
+            if (role != 2)
+            {
+                return Forbid();
+            }
+
+            try
+            {
+                var result = await _articleService.DeleteArticleAsync(articleId, userId);
+
+                if (!result)
+                {
+                    return NotFound("Article not found or deletion failed.");
+                }
+
+                return Ok("Article deleted successfully.");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Forbid(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+
+        [HttpPut("{articleId}/publish")]
+        [Authorize]
+        public async Task<IActionResult> PublishArticle(long articleId)
+        {
+            var userId = long.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            var role = long.Parse(User.FindFirst("role")?.Value);
+
+            if (role != 2)
+            {
+                return Forbid();
+            }
+
+            try
+            {
+                var isPublished = await _articleService.PublishArticleAsync(articleId, userId);
+
+                if (isPublished)
+                {
+                    return Ok("Article successfully published.");
+                }
+
+                return BadRequest("Article could not be published.");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Forbid(ex.Message);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "An unexpected error occurred: " + ex.Message);
+            }
+        }
+
+
+
     }
 }

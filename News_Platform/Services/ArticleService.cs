@@ -1,4 +1,5 @@
-﻿using News_Platform.DTOs;
+﻿using Microsoft.EntityFrameworkCore;
+using News_Platform.DTOs;
 using News_Platform.Models;
 using News_Platform.Repositories;
 
@@ -120,10 +121,81 @@ namespace News_Platform.Services
             };
         }
 
+
+        public async Task<bool> UpdateArticleAsync(long articleId, string title, string content, long categoryId, long authorId)
+        {
+            var article = await _articleRepository.GetArticleByIdAsync(articleId);
+            if (article == null)
+            {
+                return false;
+            }
+
+            if(article.AuthorID != authorId)
+            {
+                throw new UnauthorizedAccessException("You are not the author of this article.");
+            }
+
+            article.Title = title;
+            article.Content = content;
+            article.CategoryID = categoryId;
+
+            await _articleRepository.UpdateArticleAsync(article);
+
+            return true;
+        }
+
+
         private string GenerateSlug(string title)
         {
             return title.ToLower().Replace(" ", "-");
         }
+
+        public async Task<bool> DeleteArticleAsync(long articleId, long userId)
+        {
+            var article = await _articleRepository.GetArticleByIdAsync(articleId);
+            if (article == null)
+            {
+                return false;
+            }
+
+            if (article.AuthorID != userId)
+            {
+                throw new UnauthorizedAccessException("You are not the author of this article.");
+            }
+
+            await _articleRepository.DeleteArticleAsync(articleId);
+
+            return true;
+        }
+
+
+        public async Task<bool> PublishArticleAsync(long articleId, long authorId)
+        {
+            var article = await _articleRepository.GetArticleByIdAsync(articleId);
+
+            if (article == null)
+            {
+                throw new KeyNotFoundException("Article not found.");
+            }
+
+            if (article.AuthorID != authorId)
+            {
+                throw new UnauthorizedAccessException("You are not the author of this article.");
+            }
+
+            if (article.Status == 1)
+            {
+                throw new InvalidOperationException("Article is already published.");
+            }
+
+            article.Status = 1;
+            article.PublishedAt = DateTime.UtcNow;
+
+            await _articleRepository.UpdateArticleAsync(article);
+
+            return true;
+        }
+
 
 
 
@@ -148,11 +220,6 @@ namespace News_Platform.Services
         public async Task AddArticleAsync(Article article)
         {
             await _articleRepository.AddArticleAsync(article);
-        }
-
-        public async Task UpdateArticleAsync(Article article)
-        {
-            await _articleRepository.UpdateArticleAsync(article);
         }
 
         public async Task DeleteArticleAsync(long id)

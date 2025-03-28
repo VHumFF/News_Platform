@@ -10,9 +10,11 @@ namespace News_Platform.Services
         Task<Article?> GetArticleByIdAsync(long id);
         Task<Article?> GetArticleBySlugAsync(string slug);
         Task AddArticleAsync(Article article);
-        Task UpdateArticleAsync(Article article);
         Task DeleteArticleAsync(long id);
         Task<ArticleDto> GetArticle(long id);
         Task<ArticleDto> AddArticleAsync(string title, string content, long categoryId, string imageUrl, long userId);
+        Task<bool> UpdateArticleAsync(long articleId, string title, string content, long categoryId, long authorId);
+        Task<bool> DeleteArticleAsync(long articleId, long userId);
+        Task<bool> PublishArticleAsync(long articleId, long authorId);
     }
 }
