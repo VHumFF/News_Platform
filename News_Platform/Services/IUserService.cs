@@ -9,8 +9,8 @@ namespace News_Platform.Services
         Task CreateUserAsync(User user);
         Task UpdateUserAsync(User user);
         Task DeleteUserAsync(long id);
-        Task RegisterUserAccount(News_Platform.DTOs.RegisterRequest registerRequest);
+        Task<long> RegisterUserAccount(News_Platform.DTOs.RegisterRequest registerRequest);
         Task<String?> LoginUser(News_Platform.DTOs.LoginRequest loginRequest);
-
+        Task ChangeUserPassword(long userId, string oldPassword, string newPassword);
     }
 }

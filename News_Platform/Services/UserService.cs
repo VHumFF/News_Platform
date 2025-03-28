@@ -18,7 +18,7 @@ namespace News_Platform.Services
         }
 
 
-        public async Task RegisterUserAccount(RegisterRequest registerRequest)
+        public async Task<long> RegisterUserAccount(RegisterRequest registerRequest)
         {
             User user = new User
             {
@@ -28,8 +28,11 @@ namespace News_Platform.Services
                 PasswordHash = PasswordUtility.HashPassword(registerRequest.Password)
             };
 
-            await CreateUserAsync(user);
+            await _userRepository.AddUserAsync(user);
+            return user.UserID;
         }
+
+
 
         public async Task<string?> LoginUser(LoginRequest loginRequest)
         {
@@ -47,6 +50,25 @@ namespace News_Platform.Services
 
             return _jwtUtility.GenerateToken(user.UserID, user.Role);
         }
+
+        public async Task ChangeUserPassword(long userId, string oldPassword, string newPassword)
+        {
+            var user = await _userRepository.GetUserByIdAsync(userId);
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found.");
+            }
+
+
+            if (!PasswordUtility.VerifyPassword(oldPassword, user.PasswordHash))
+            {
+                throw new UnauthorizedAccessException("Old password is incorrect.");
+            }
+
+            user.PasswordHash = PasswordUtility.HashPassword(newPassword);
+            await _userRepository.UpdateUserAsync(user);
+        }
+
 
 
 
