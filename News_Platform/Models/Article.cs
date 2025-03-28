@@ -34,8 +34,7 @@ namespace News_Platform.Models
 
         public string ImageURL { get; set; }
 
-        public long Status { get; set; } = 0; // Default to Draft
-
+        public long Status { get; set; } = 0;
         public long TotalViews { get; set; } = 0;
 
         public long Last24HoursViews { get; set; } = 0;

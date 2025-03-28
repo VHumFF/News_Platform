@@ -184,6 +184,39 @@ namespace News_Platform.Controllers
         }
 
 
+        [HttpGet("latest")]
+        public async Task<IActionResult> GetLatestNews([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+            if (page < 1 || pageSize < 1)
+            {
+                return BadRequest("Page and pageSize must be greater than zero.");
+            }
+
+            var result = await _articleService.GetLatestNewsAsync(page, pageSize);
+
+            return Ok(result);
+        }
+
+        [HttpGet("category/{categoryId}")]
+        public async Task<IActionResult> GetArticlesByCategory(long categoryId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+            var result = await _articleService.GetArticlesByCategoryAsync(categoryId, page, pageSize);
+            return Ok(result);
+        }
+
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchArticles([FromQuery] string query, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                return BadRequest("Search query cannot be empty.");
+            }
+
+            var result = await _articleService.SearchArticlesAsync(query, page, pageSize);
+            return Ok(result);
+        }
+
+
 
     }
 }

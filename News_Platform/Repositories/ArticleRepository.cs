@@ -4,6 +4,7 @@ using News_Platform.Models;
 using News_Platform.DTOs;
 using Microsoft.EntityFrameworkCore;
 
+
 namespace News_Platform.Repositories
 {
     public class ArticleRepository : IArticleRepository
@@ -26,6 +27,56 @@ namespace News_Platform.Repositories
                 .ToListAsync();
 
             return trendingArticles;
+        }
+
+        public async Task<PaginatedResult<ArticleDto>> SearchArticlesAsync(string query, int page, int pageSize)
+        {
+            IQueryable<Article> articlesQuery = _context.Articles
+                .Where(a => a.Status == 1)
+                .Where(a =>
+                    EF.Functions.Like(a.Title, $"%{query}%") ||
+                    EF.Functions.Like(a.Slug, $"%{query}%") ||
+                    EF.Functions.Like(a.Content, $"%{query}%"))
+                .OrderByDescending(a => a.Last24HoursViews)
+                .ThenByDescending(a => a.Last7DaysViews)
+                .ThenByDescending(a => a.TotalViews);
+
+            int totalCount = await articlesQuery.CountAsync();
+
+            var articles = await articlesQuery
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(a => new ArticleDto
+                {
+                    ArticleID = a.ArticleID,
+                    Title = a.Title,
+                    Slug = a.Slug,
+                    Content = a.Content,
+                    ImageURL = a.ImageURL,
+                    PublishedAt = a.PublishedAt,
+                    AuthorFirstName = a.Author.FirstName,
+                    AuthorLastName = a.Author.LastName,
+                    CategoryName = a.Category.Name,
+                    Last24HoursViews = a.Last24HoursViews,
+                    Last7DaysViews = a.Last7DaysViews,
+                    TotalViews = a.TotalViews
+                })
+                .ToListAsync();
+
+            return new PaginatedResult<ArticleDto>
+            {
+                Items = articles,
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize
+            };
+        }
+
+
+
+        public IQueryable<Article> GetQueryableArticles()
+        {
+            return _context.Articles.AsQueryable();
         }
 
 

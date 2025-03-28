@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace News_Platform.Models
 {
-    [Table("Categories")]  // Explicitly maps to the Categories table
+    [Table("Categories")]
     public class Category
     {
         [Key]
@@ -12,18 +12,17 @@ namespace News_Platform.Models
 
         [Required]
         [MaxLength(100)]
-        [Column("CategoryName")]  // Maps to the CategoryName column
+        [Column("CategoryName")]
         public string Name { get; set; }
 
         public string Description { get; set; }
 
-        [Column("CreatedAt")]  // Maps to the CreatedAt column
+        [Column("CreatedAt")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        [Column("UpdatedAt")]  // Maps to the UpdatedAt column
+        [Column("UpdatedAt")]
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
-        // Navigation property
         public ICollection<Article> Articles { get; set; }
     }
 }

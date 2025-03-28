@@ -16,5 +16,10 @@ namespace News_Platform.Services
         Task<bool> UpdateArticleAsync(long articleId, string title, string content, long categoryId, long authorId);
         Task<bool> DeleteArticleAsync(long articleId, long userId);
         Task<bool> PublishArticleAsync(long articleId, long authorId);
+        Task<PaginatedResult<ArticleDto>> GetLatestNewsAsync(int page, int pageSize);
+        Task<PaginatedResult<ArticleDto>> GetArticlesByCategoryAsync(long categoryId, int page, int pageSize);
+        Task<PaginatedResult<ArticleDto>> SearchArticlesAsync(string query, int page, int pageSize);
+
+
     }
 }

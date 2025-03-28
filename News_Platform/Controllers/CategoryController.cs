@@ -14,7 +14,7 @@ namespace News_Platform.Controllers
             _categoryService = categoryService;
         }
 
-        // GET: api/categories
+
         [HttpGet]
         public async Task<IActionResult> GetCategories()
         {
@@ -22,7 +22,7 @@ namespace News_Platform.Controllers
             return Ok(categories);
         }
 
-        // GET: api/categories/{id}
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetCategory(long id)
         {
@@ -35,7 +35,7 @@ namespace News_Platform.Controllers
             return Ok(category);
         }
 
-        // POST: api/categories
+
         [HttpPost]
         public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryRequest request)
         {

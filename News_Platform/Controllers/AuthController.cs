@@ -52,7 +52,6 @@ namespace News_Platform.Controllers
                 return BadRequest("Invalid request data. Email and Password are required.");
             }
 
-            // Check if the user already exists
             var existingUser = await _userService.GetUserByEmailAsync(registerRequest.Email);
             if (existingUser != null)
             {
@@ -66,7 +65,6 @@ namespace News_Platform.Controllers
             }
             catch (Exception ex)
             {
-                // Log the exception (use a proper logging framework in production)
                 Console.WriteLine($"Error registering user: {ex.Message}");
                 return StatusCode(500, "An error occurred while creating the account.");
             }

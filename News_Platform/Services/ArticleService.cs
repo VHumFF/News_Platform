@@ -198,6 +198,93 @@ namespace News_Platform.Services
 
 
 
+        public async Task<PaginatedResult<ArticleDto>> GetLatestNewsAsync(int page, int pageSize)
+        {
+            var query = _articleRepository.GetQueryableArticles()
+                .Where(a => a.Status == 1)
+                .OrderByDescending(a => a.PublishedAt);
+
+            int totalArticles = await query.CountAsync();
+
+            var articles = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(a => new ArticleDto
+                {
+                    ArticleID = a.ArticleID,
+                    Title = a.Title,
+                    Slug = a.Slug,
+                    Content = a.Content,
+                    ImageURL = a.ImageURL,
+                    PublishedAt = a.PublishedAt,
+                    AuthorFirstName = a.Author.FirstName,
+                    AuthorLastName = a.Author.LastName,
+                    CategoryName = a.Category.Name
+                })
+                .ToListAsync();
+
+            return new PaginatedResult<ArticleDto>
+            {
+                Items = articles,
+                TotalCount = totalArticles,
+                Page = page,
+                PageSize = pageSize
+            };
+        }
+
+
+        public async Task<PaginatedResult<ArticleDto>> GetArticlesByCategoryAsync(long categoryId, int page, int pageSize)
+        {
+            var query = _articleRepository.GetQueryableArticles()
+                .Where(a => a.Status == 1 && a.CategoryID == categoryId)
+                .OrderByDescending(a => a.Last24HoursViews)
+                .ThenByDescending(a => a.Last7DaysViews)
+                .ThenByDescending(a => a.TotalViews);
+
+            int totalArticles = await query.CountAsync();
+
+            var articles = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(a => new ArticleDto
+                {
+                    ArticleID = a.ArticleID,
+                    Title = a.Title,
+                    Slug = a.Slug,
+                    Content = a.Content,
+                    ImageURL = a.ImageURL,
+                    PublishedAt = a.PublishedAt,
+                    AuthorFirstName = a.Author.FirstName,
+                    AuthorLastName = a.Author.LastName,
+                    CategoryID = a.Category.CategoryID,
+                    CategoryName = a.Category.Name,
+                    Last24HoursViews = a.Last24HoursViews,
+                    Last7DaysViews = a.Last7DaysViews,
+                    TotalViews = a.TotalViews
+                })
+                .ToListAsync();
+
+            return new PaginatedResult<ArticleDto>
+            {
+                Items = articles,
+                TotalCount = totalArticles,
+                Page = page,
+                PageSize = pageSize
+            };
+        }
+
+
+        public async Task<PaginatedResult<ArticleDto>> SearchArticlesAsync(string query, int page, int pageSize)
+        {
+            return await _articleRepository.SearchArticlesAsync(query, page, pageSize);
+        }
+
+
+
+
+
+
+
 
 
 

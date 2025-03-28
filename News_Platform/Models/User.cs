@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-[Table("Users")] // Maps to "Users" table in MySQL
+[Table("Users")]
 public class User
 {
     [Key]
