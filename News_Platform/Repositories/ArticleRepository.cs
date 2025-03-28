@@ -28,9 +28,6 @@ namespace News_Platform.Repositories
         }
 
 
-
-
-
         public async Task<IEnumerable<Article>> GetAllArticlesAsync()
         {
             return await _context.Articles

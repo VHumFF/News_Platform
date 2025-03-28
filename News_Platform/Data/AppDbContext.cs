@@ -12,6 +12,7 @@ namespace News_Platform.Data
 
         public DbSet<User> Users { get; set; } // Maps to Users table
         public DbSet<Article> Articles { get; set; } // Maps to Articles table
+        public DbSet<Category> Categories { get; set; } // Maps to Categories table
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

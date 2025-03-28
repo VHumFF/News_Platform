@@ -21,9 +21,6 @@ namespace News_Platform.Models
         public string Content { get; set; }
 
         [Required]
-        public string Summary { get; set; }
-
-        [Required]
         public long AuthorID { get; set; }
 
         [ForeignKey("AuthorID")]

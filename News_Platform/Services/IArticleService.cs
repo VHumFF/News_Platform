@@ -12,5 +12,7 @@ namespace News_Platform.Services
         Task AddArticleAsync(Article article);
         Task UpdateArticleAsync(Article article);
         Task DeleteArticleAsync(long id);
+        Task<ArticleDto> GetArticle(long id);
+        Task<ArticleDto> AddArticleAsync(string title, string content, long categoryId, string imageUrl, long userId);
     }
 }
