@@ -10,13 +10,14 @@ namespace News_Platform.Data
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
-        public DbSet<User> Users { get; set; } // Maps to Users table
-        public DbSet<Article> Articles { get; set; } // Maps to Articles table
-        public DbSet<Category> Categories { get; set; } // Maps to Categories table
+        public DbSet<User> Users { get; set; }
+        public DbSet<Article> Articles { get; set; }
+        public DbSet<Category> Categories { get; set; }
+        public DbSet<Comment> Comments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<User>().HasIndex(u => u.Email).IsUnique(); // Unique index for Email
+            modelBuilder.Entity<User>().HasIndex(u => u.Email).IsUnique();
         }
     }
 
