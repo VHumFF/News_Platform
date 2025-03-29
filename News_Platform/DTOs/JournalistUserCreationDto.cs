@@ -2,7 +2,7 @@
 
 namespace News_Platform.DTOs
 {
-    public class AdminUserCreationDto
+    public class JournalistUserCreationDto
     {
         [Required]
         public string FirstName { get; set; }

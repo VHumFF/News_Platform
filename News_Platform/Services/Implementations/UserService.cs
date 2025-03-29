@@ -58,7 +58,7 @@ namespace News_Platform.Services.Implementations
 
 
 
-        public async Task<long> RegisterJournalistUser(AdminUserCreationDto adminUserCreationDto)
+        public async Task<long> RegisterJournalistUser(JournalistUserCreationDto adminUserCreationDto)
         {
             string generatedPassword = GenerateSecurePassword();
 

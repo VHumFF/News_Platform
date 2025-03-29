@@ -11,7 +11,7 @@ namespace News_Platform.Services.Interfaces
         Task UpdateUserAsync(User user);
         Task DeleteUserAsync(long id);
         Task<long> RegisterUserAccount(DTOs.RegisterRequest registerRequest);
-        Task<long> RegisterJournalistUser(DTOs.AdminUserCreationDto adminUserCreationDto);
+        Task<long> RegisterJournalistUser(DTOs.JournalistUserCreationDto adminUserCreationDto);
         Task<string?> LoginUser(DTOs.LoginRequest loginRequest);
         Task ChangeUserPassword(long userId, string oldPassword, string newPassword);
         Task ActivateUserAsync(long userId);

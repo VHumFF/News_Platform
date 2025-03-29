@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using News_Platform.DTOs;
+using News_Platform.Services.Implementations;
 using News_Platform.Services.Interfaces;
 namespace News_Platform.Controllers
 {
@@ -16,7 +17,7 @@ namespace News_Platform.Controllers
 
 
         [HttpPost("register-journalist")]
-        public async Task<IActionResult> RegisterJournalistUser([FromBody] AdminUserCreationDto adminUserCreationDto)
+        public async Task<IActionResult> RegisterJournalistUser([FromBody] JournalistUserCreationDto adminUserCreationDto)
         {
             if (!ModelState.IsValid)
             {
