@@ -130,6 +130,34 @@ namespace News_Platform.Services.Implementations
             await _userRepository.UpdateUserAsync(user);
         }
 
+        public async Task ResendActivationEmailAsync(string email)
+        {
+            var user = await _userRepository.GetUserByEmailAsync(email);
+            if (user == null)
+            {
+                throw new KeyNotFoundException("User not found.");
+            }
+
+            if (user.Status != 0)
+            {
+                throw new InvalidOperationException("User is already activated.");
+            }
+
+            // Generate a new activation token
+            var token = await _userTokenService.GenerateTokenAsync(user.UserID, 1);
+            string baseUrl = _configuration["AppSettings:FrontendUrl"];
+            string activationLink = $"{baseUrl}/activate/{token}";
+
+            Dictionary<string, string> emailParams = new Dictionary<string, string>
+            {
+                { "[NAME]", $"{user.FirstName} {user.LastName}" },
+                { "[ACTIVATION_LINK]", activationLink }
+            };
+
+            await _emailService.SendEmailAsync(user.Email, "ACCOUNT_ACTIVATION_1", emailParams);
+        }
+
+
 
 
         public async Task<IEnumerable<User>> GetAllUsersAsync()

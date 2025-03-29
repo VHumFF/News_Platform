@@ -146,6 +146,37 @@ namespace News_Platform.Controllers
         }
 
 
+        [HttpPost("auth/resend-activation")]
+        public async Task<IActionResult> ResendActivationEmail([FromBody] ResendActivationRequest request)
+        {
+            if (request == null || string.IsNullOrEmpty(request.Email))
+            {
+                return BadRequest("Email is required.");
+            }
+
+            try
+            {
+                await _userService.ResendActivationEmailAsync(request.Email);
+                return Ok("Activation email resent successfully.");
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "An error occurred while resending the activation email.");
+            }
+        }
+
+
+
+
+
 
 
 

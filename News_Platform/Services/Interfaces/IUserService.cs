@@ -13,5 +13,6 @@
         Task<string?> LoginUser(DTOs.LoginRequest loginRequest);
         Task ChangeUserPassword(long userId, string oldPassword, string newPassword);
         Task ActivateUserAsync(long userId);
+        Task ResendActivationEmailAsync(string email);
     }
 }
