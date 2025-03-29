@@ -1,4 +1,4 @@
-﻿namespace News_Platform.Services
+﻿namespace News_Platform.Services.Interfaces
 {
     public interface IS3Service
     {

@@ -2,8 +2,9 @@
 using Amazon.S3;
 using Amazon.S3.Model;
 using Amazon;
+using News_Platform.Services.Interfaces;
 
-namespace News_Platform.Services
+namespace News_Platform.Services.Implementations
 {
     public class S3Service : IS3Service
     {

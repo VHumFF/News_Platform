@@ -1,9 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using News_Platform.DTOs;
 using News_Platform.Models;
-using News_Platform.Repositories;
+using News_Platform.Repositories.Interfaces;
+using News_Platform.Services.Interfaces;
 
-namespace News_Platform.Services
+namespace News_Platform.Services.Implementations
 {
     public class ArticleService : IArticleService
     {
@@ -145,7 +146,7 @@ namespace News_Platform.Services
                 return false;
             }
 
-            if(article.AuthorID != authorId)
+            if (article.AuthorID != authorId)
             {
                 throw new UnauthorizedAccessException("You are not the author of this article.");
             }

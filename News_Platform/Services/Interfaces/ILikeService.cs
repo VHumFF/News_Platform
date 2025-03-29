@@ -1,8 +1,9 @@
 ﻿using System.Threading.Tasks;
 using News_Platform.Models;
-using News_Platform.Repositories;
+using News_Platform.Repositories.Interfaces;
+using News_Platform.Services.Implementations;
 
-namespace News_Platform.Services
+namespace News_Platform.Services.Interfaces
 {
     public class LikeService : ILikeService
     {

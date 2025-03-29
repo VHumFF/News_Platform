@@ -1,7 +1,7 @@
 ﻿using News_Platform.DTOs;
 using News_Platform.Models;
 
-namespace News_Platform.Services
+namespace News_Platform.Services.Interfaces
 {
     public interface IArticleService
     {

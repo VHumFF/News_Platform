@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace News_Platform.Services
+namespace News_Platform.Services.Implementations
 {
     public interface ILikeService
     {

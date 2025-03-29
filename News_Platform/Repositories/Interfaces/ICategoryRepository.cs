@@ -1,6 +1,6 @@
 ﻿using News_Platform.Models;
 
-namespace News_Platform.Repositories
+namespace News_Platform.Repositories.Interfaces
 {
     public interface ICategoryRepository
     {

@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using News_Platform.DTOs;
 
-namespace News_Platform.Services
+namespace News_Platform.Services.Interfaces
 {
     public interface ICommentService
     {

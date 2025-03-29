@@ -1,4 +1,4 @@
-﻿namespace News_Platform.Repositories
+﻿namespace News_Platform.Repositories.Interfaces
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;

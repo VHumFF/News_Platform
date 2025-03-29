@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
-using News_Platform.Services;
 using News_Platform.DTOs;
 using System.Security.Claims;
+using News_Platform.Services.Interfaces;
 
 namespace News_Platform.Controllers
 {

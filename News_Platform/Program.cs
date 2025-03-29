@@ -3,9 +3,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using News_Platform.Data;
-using News_Platform.Repositories;
-using News_Platform.Services;
 using News_Platform.Utilities;
+using News_Platform.Repositories.Interfaces;
+using News_Platform.Repositories.Implementations;
+using News_Platform.Services.Implementations;
+using News_Platform.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +18,7 @@ builder.Services.AddSwaggerGen();
 
 // Get the connection string
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IArticleRepository, ArticleRepository>();
@@ -25,6 +28,11 @@ builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<ICommentService, CommentService>();
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 builder.Services.AddScoped<ILikeRepository, LikeRepository>();
+builder.Services.AddScoped<ILikeService, LikeService>();
+builder.Services.AddScoped<IUserTokenRepository, UserTokenRepository>();
+builder.Services.AddScoped<IUserTokenService, UserTokenService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IEmailTemplateRepository, EmailTemplateRepository>();
 
 
 

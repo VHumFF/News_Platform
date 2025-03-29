@@ -40,7 +40,7 @@ namespace News_Platform.Controllers
             }
             catch (UnauthorizedAccessException ex)
             {
-                return StatusCode(403, new { Message = ex.Message }); // 403 Forbidden for inactive users
+                return StatusCode(403, new { Message = ex.Message });
             }
             catch (Exception ex)
             {

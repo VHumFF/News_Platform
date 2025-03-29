@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using News_Platform.Services;
+using News_Platform.Services.Interfaces;
 
 namespace News_Platform.Controllers
 {
