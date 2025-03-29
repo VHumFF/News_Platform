@@ -3,6 +3,8 @@ using News_Platform.DTOs;
 using News_Platform.Services.Interfaces;
 namespace News_Platform.Controllers
 {
+    [Route("api/[controller]")]
+    [ApiController]
     public class AdminController : Controller
     {
         private readonly IUserService _userService;
@@ -13,7 +15,7 @@ namespace News_Platform.Controllers
         }
 
 
-        [HttpPost("register")]
+        [HttpPost("register-journalist")]
         public async Task<IActionResult> RegisterJournalistUser([FromBody] AdminUserCreationDto adminUserCreationDto)
         {
             if (!ModelState.IsValid)

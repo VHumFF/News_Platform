@@ -60,21 +60,50 @@ namespace News_Platform.Services.Implementations
 
         public async Task<long> RegisterJournalistUser(AdminUserCreationDto adminUserCreationDto)
         {
-            string generatedPassword = Guid.NewGuid().ToString("N").Substring(0, 32);
+            string generatedPassword = GenerateSecurePassword();
+
             User user = new User
             {
                 FirstName = adminUserCreationDto.FirstName,
                 LastName = adminUserCreationDto.LastName,
                 Email = adminUserCreationDto.Email,
-                Role = adminUserCreationDto.Role,
+                Role = 1,
                 PasswordHash = PasswordUtility.HashPassword(generatedPassword)
             };
 
-            //_emailService.SendEmailAsync(user.Email, "Welcome to News Platform", "Your account has been created successfully.");
 
             await _userRepository.AddUserAsync(user);
+
+            var token = await _userTokenService.GenerateTokenAsync(user.UserID, 2);
+
+            string baseUrl = _configuration["AppSettings:FrontendUrl"];
+            string activationLink = $"{baseUrl}/activate-journalist/{token}";
+
+
+            Dictionary<string, string> emailParams = new Dictionary<string, string>
+            {
+                { "[NAME]", $"{user.FirstName} {user.LastName}" },
+                { "[ACTIVATION_LINK]", activationLink },
+                { "[TEMPORARY_PASSWORD]", generatedPassword }
+            };
+
+
+            await _emailService.SendEmailAsync(user.Email, "ACCOUNT_ACTIVATION_2", emailParams);
+
             return user.UserID;
         }
+
+
+        private string GenerateSecurePassword()
+        {
+            using (var rng = new System.Security.Cryptography.RNGCryptoServiceProvider())
+            {
+                byte[] data = new byte[16];
+                rng.GetBytes(data);
+                return Convert.ToBase64String(data).Substring(0, 12);
+            }
+        }
+
 
 
 
@@ -142,6 +171,10 @@ namespace News_Platform.Services.Implementations
             {
                 throw new InvalidOperationException("User is already activated.");
             }
+            if(user.Role == 1)
+            {
+                throw new InvalidOperationException("Invalid request.");
+            }
 
             // Generate a new activation token
             var token = await _userTokenService.GenerateTokenAsync(user.UserID, 1);
@@ -156,6 +189,37 @@ namespace News_Platform.Services.Implementations
 
             await _emailService.SendEmailAsync(user.Email, "ACCOUNT_ACTIVATION_1", emailParams);
         }
+
+
+        public async Task<bool> ActivateJournalistAccountAsync(JournalistActivationDto activationDto)
+        {
+            var userId = await _userTokenService.GetUserIdFromTokenAsync(activationDto.Token, 2);
+            if (userId == null)
+            {
+                throw new InvalidOperationException("Invalid or expired activation token.");
+            }
+
+            var user = await _userRepository.GetUserByIdAsync(userId.Value);
+            if (user == null || user.Role != 1)
+            {
+                throw new InvalidOperationException("Invalid journalist account.");
+            }
+
+            bool isTempPasswordValid = PasswordUtility.VerifyPassword(activationDto.TemporaryPassword, user.PasswordHash);
+            if (!isTempPasswordValid)
+            {
+                throw new UnauthorizedAccessException("Invalid temporary password.");
+            }
+
+            user.PasswordHash = PasswordUtility.HashPassword(activationDto.NewPassword);
+            user.Status = 1;
+
+            await _userRepository.UpdateUserAsync(user);
+
+            return true;
+        }
+
+
 
 
 

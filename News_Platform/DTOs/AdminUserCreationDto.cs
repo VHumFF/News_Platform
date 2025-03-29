@@ -12,8 +12,5 @@ namespace News_Platform.DTOs
 
         [Required, EmailAddress]
         public string Email { get; set; }
-
-        [Required]
-        public long Role { get; set; }
     }
 }

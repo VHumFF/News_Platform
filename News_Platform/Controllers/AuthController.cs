@@ -117,7 +117,7 @@ namespace News_Platform.Controllers
             }
         }
 
-        [HttpPost("activate/{token}")]
+        [HttpPost("activate-account/{token}")]
         public async Task<IActionResult> ActivateAccount(string token)
         {
             try
@@ -146,7 +146,7 @@ namespace News_Platform.Controllers
         }
 
 
-        [HttpPost("auth/resend-activation")]
+        [HttpPost("resend-activation")]
         public async Task<IActionResult> ResendActivationEmail([FromBody] ResendActivationRequest request)
         {
             if (request == null || string.IsNullOrEmpty(request.Email))
@@ -172,10 +172,6 @@ namespace News_Platform.Controllers
                 return StatusCode(500, "An error occurred while resending the activation email.");
             }
         }
-
-
-
-
 
 
 
