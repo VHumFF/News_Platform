@@ -1,5 +1,4 @@
-﻿
-namespace News_Platform.Services
+﻿namespace News_Platform.Services.Interfaces
 {
     public interface IUserService
     {
@@ -9,8 +8,10 @@ namespace News_Platform.Services
         Task CreateUserAsync(User user);
         Task UpdateUserAsync(User user);
         Task DeleteUserAsync(long id);
-        Task<long> RegisterUserAccount(News_Platform.DTOs.RegisterRequest registerRequest);
-        Task<String?> LoginUser(News_Platform.DTOs.LoginRequest loginRequest);
+        Task<long> RegisterUserAccount(DTOs.RegisterRequest registerRequest);
+        Task<long> RegisterJournalistUser(DTOs.AdminUserCreationDto adminUserCreationDto);
+        Task<string?> LoginUser(DTOs.LoginRequest loginRequest);
         Task ChangeUserPassword(long userId, string oldPassword, string newPassword);
+        Task ActivateUserAsync(long userId);
     }
 }

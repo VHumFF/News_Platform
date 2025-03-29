@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-
-using News_Platform.Services;
 using News_Platform.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+using News_Platform.Services.Interfaces;
+using News_Platform.Services.Implementations;
 namespace News_Platform.Controllers
 {
     [Route("api/[controller]")]
@@ -11,10 +11,12 @@ namespace News_Platform.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IUserService _userService;
+        private readonly IUserTokenService _userTokenService;
 
-        public AuthController(IUserService userService)
+        public AuthController(IUserService userService, IUserTokenService userTokenService)
         {
             _userService = userService;
+            _userTokenService = userTokenService;
         }
 
         [AllowAnonymous]
@@ -26,14 +28,26 @@ namespace News_Platform.Controllers
                 return BadRequest("Invalid request data.");
             }
 
-            String jwt = await _userService.LoginUser(loginRequest);
-            if (jwt == null)
+            try
             {
-                return Unauthorized("Invalid email or password.");
-            }
+                string? jwt = await _userService.LoginUser(loginRequest);
+                if (jwt == null)
+                {
+                    return Unauthorized("Invalid email or password.");
+                }
 
-            return Ok(jwt);
+                return Ok(new { Token = jwt });
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return StatusCode(403, new { Message = ex.Message }); // 403 Forbidden for inactive users
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
         }
+
 
 
         [Authorize]
@@ -102,6 +116,36 @@ namespace News_Platform.Controllers
                 return StatusCode(500, "An error occurred while changing the password.");
             }
         }
+
+        [HttpPost("activate/{token}")]
+        public async Task<IActionResult> ActivateAccount(string token)
+        {
+            try
+            {
+                string decodedToken = Uri.UnescapeDataString(token);
+                var isValid = await _userTokenService.ValidateTokenAsync(decodedToken, 1);
+                if (!isValid)
+                    return BadRequest("Invalid or expired token.");
+
+                var userId = await _userTokenService.GetUserIdFromTokenAsync(decodedToken, 1);
+                if (userId == null)
+                    return BadRequest("Invalid token.");
+
+                await _userService.ActivateUserAsync(userId.Value);
+
+                return Ok("Account activated successfully.");
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "An error occurred while activating the account.");
+            }
+        }
+
+
 
 
 

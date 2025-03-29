@@ -1,7 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using News_Platform.Data;
+using News_Platform.Repositories.Interfaces;
 
-namespace News_Platform.Repositories
+namespace News_Platform.Repositories.Implementations
 {
     public class UserRepository : IUserRepository
     {

@@ -1,6 +1,4 @@
-﻿
-
-namespace News_Platform.Repositories
+﻿namespace News_Platform.Repositories.Interfaces
 {
     public interface IUserRepository
     {
