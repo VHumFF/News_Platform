@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using News_Platform.DTOs;
 using News_Platform.Services.Implementations;
 using News_Platform.Services.Interfaces;
@@ -15,31 +16,44 @@ namespace News_Platform.Controllers
             _userService = userService;
         }
 
-
+        [Authorize]
         [HttpPost("register-journalist")]
         public async Task<IActionResult> RegisterJournalistUser([FromBody] JournalistUserCreationDto adminUserCreationDto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            var existingUser = await _userService.GetUserByEmailAsync(adminUserCreationDto.Email);
-            if (existingUser != null)
-            {
-                return BadRequest("Email is already registered.");
-            }
-
             try
             {
+                if (!long.TryParse(User.FindFirst("role")?.Value, out long role) || role != 2)
+                {
+                    return Forbid("Only Admins can register journalists.");
+                }
+
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var existingUser = await _userService.GetUserByEmailAsync(adminUserCreationDto.Email);
+                if (existingUser != null)
+                {
+                    return Conflict(new { message = "Email is already registered." });
+                }
+
                 var userId = await _userService.RegisterJournalistUser(adminUserCreationDto);
-                return Ok(new { message = "User registered successfully.", userId });
+                return Ok(new { message = "Journalist registered successfully.", userId });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new { error = ex.Message });
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error registering user: {ex.Message}");
-                return StatusCode(500, "An error occurred while creating the account.");
+                return StatusCode(500, new { error = "An unexpected error occurred while creating the account." });
             }
         }
+
     }
 }

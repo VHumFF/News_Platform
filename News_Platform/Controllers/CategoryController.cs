@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using News_Platform.Services.Interfaces;
 
 namespace News_Platform.Controllers
@@ -14,7 +15,7 @@ namespace News_Platform.Controllers
             _categoryService = categoryService;
         }
 
-
+        [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> GetCategories()
         {
@@ -22,7 +23,7 @@ namespace News_Platform.Controllers
             return Ok(categories);
         }
 
-
+        [AllowAnonymous]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetCategory(long id)
         {
@@ -35,18 +36,5 @@ namespace News_Platform.Controllers
             return Ok(category);
         }
 
-
-        [HttpPost]
-        public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryRequest request)
-        {
-            var category = await _categoryService.AddCategoryAsync(request.Name, request.Description);
-            return CreatedAtAction(nameof(GetCategory), new { id = category.CategoryID }, category);
-        }
-    }
-
-    public class CreateCategoryRequest
-    {
-        public string Name { get; set; }
-        public string Description { get; set; }
     }
 }

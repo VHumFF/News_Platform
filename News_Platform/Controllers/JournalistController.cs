@@ -2,6 +2,7 @@
 using News_Platform.Services.Interfaces;
 using News_Platform.Utilities;
 using News_Platform.DTOs;
+using Microsoft.AspNetCore.Authorization;
 namespace News_Platform.Controllers
 {
     [Route("api/journalists")]
@@ -17,6 +18,7 @@ namespace News_Platform.Controllers
             _userTokenService = userTokenService;
         }
 
+        [AllowAnonymous]
         [HttpGet("validate-activation/{token}")]
         public async Task<IActionResult> ValidateActivationToken(string token)
         {
@@ -34,6 +36,7 @@ namespace News_Platform.Controllers
             return Ok(new { message = "Activation token is valid." });
         }
 
+        [AllowAnonymous]
         [HttpPost("activate")]
         public async Task<IActionResult> ActivateJournalistAccount([FromBody] JournalistActivationDto activationDto)
         {

@@ -25,7 +25,7 @@ namespace News_Platform.Services.Implementations
             _likeRepository = likeRepository;
         }
 
-        public async Task<List<TrendingArticleDto>> GetTrendingArticlesAsync(int limit = 10)
+        public async Task<List<TrendingArticleDto>> GetTrendingArticlesAsync(int limit = 20)
         {
             List<Article> trendingArticles = await _articleRepository.GetTrendingArticlesAsync(limit);
 

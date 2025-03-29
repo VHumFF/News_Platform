@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using News_Platform.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 
 namespace News_Platform.Controllers
 {
@@ -15,6 +16,7 @@ namespace News_Platform.Controllers
             _likeService = likeService;
         }
 
+        [Authorize]
         [HttpPost("article/{articleId}/like")]
         public async Task<IActionResult> LikeArticle(long articleId, [FromQuery] long userId)
         {
@@ -22,6 +24,7 @@ namespace News_Platform.Controllers
             return success ? Ok("Liked") : BadRequest("Already liked");
         }
 
+        [Authorize]
         [HttpPost("comment/{commentId}/like")]
         public async Task<IActionResult> LikeComment(long commentId, [FromQuery] long userId)
         {
@@ -29,6 +32,7 @@ namespace News_Platform.Controllers
             return success ? Ok("Liked") : BadRequest("Already liked");
         }
 
+        [Authorize]
         [HttpDelete("article/{articleId}/unlike")]
         public async Task<IActionResult> UnlikeArticle(long articleId, [FromQuery] long userId)
         {
@@ -36,6 +40,7 @@ namespace News_Platform.Controllers
             return Ok("Unliked");
         }
 
+        [Authorize]
         [HttpDelete("comment/{commentId}/unlike")]
         public async Task<IActionResult> UnlikeComment(long commentId, [FromQuery] long userId)
         {

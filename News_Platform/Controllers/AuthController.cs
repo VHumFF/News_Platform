@@ -48,16 +48,7 @@ namespace News_Platform.Controllers
             }
         }
 
-
-
-        [Authorize]
-        [HttpGet("users")]
-        public async Task<IActionResult> GetUsers()
-        {
-            var users = await _userService.GetAllUsersAsync();
-            return Ok(users);
-        }
-
+        [AllowAnonymous]
         [HttpPost("register")]
         public async Task<IActionResult> RegisterUser([FromBody] RegisterRequest registerRequest)
         {
@@ -117,6 +108,7 @@ namespace News_Platform.Controllers
             }
         }
 
+        [AllowAnonymous]
         [HttpPost("activate-account/{token}")]
         public async Task<IActionResult> ActivateAccount(string token)
         {
@@ -145,7 +137,7 @@ namespace News_Platform.Controllers
             }
         }
 
-
+        [AllowAnonymous]
         [HttpPost("resend-activation")]
         public async Task<IActionResult> ResendActivationEmail([FromBody] ResendActivationRequest request)
         {

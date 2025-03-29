@@ -17,6 +17,7 @@ namespace News_Platform.Controllers
             _articleService = articleService;
         }
 
+        [AllowAnonymous]
         [HttpGet("trending")]
         public async Task<ActionResult<List<TrendingArticleDto>>> GetTrendingArticles([FromQuery] int limit = 20)
         {
@@ -24,6 +25,7 @@ namespace News_Platform.Controllers
             return Ok(trendingArticles);
         }
 
+        [AllowAnonymous]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetArticleById(long id)
         {
@@ -54,17 +56,19 @@ namespace News_Platform.Controllers
         [Authorize]
         public async Task<IActionResult> AddArticle([FromBody] CreateArticleRequest request)
         {
-
-            var userId = long.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-            var role = long.Parse(User.FindFirst("role")?.Value);
-
-            if (role != 2)
-            {
-                return Forbid();
-            }
-
             try
             {
+                if (!long.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out long userId) ||
+                    !long.TryParse(User.FindFirst("role")?.Value, out long role))
+                {
+                    return Unauthorized(new { error = "Invalid authentication token." });
+                }
+
+                if (role != 1)
+                {
+                    return Forbid("You do not have permission to add an article.");
+                }
+
                 var article = await _articleService.AddArticleAsync(
                     request.Title,
                     request.Content,
@@ -77,9 +81,14 @@ namespace News_Platform.Controllers
             }
             catch (ArgumentException ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(new { error = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "An unexpected error occurred while adding the article." });
             }
         }
+
 
         [HttpPut("{articleId}")]
         [Authorize]
@@ -88,7 +97,7 @@ namespace News_Platform.Controllers
             var userId = long.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             var role = long.Parse(User.FindFirst("role")?.Value);
 
-            if (role != 2)
+            if (role != 1)
             {
                 return Forbid();
             }
@@ -126,7 +135,7 @@ namespace News_Platform.Controllers
             var userId = long.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             var role = long.Parse(User.FindFirst("role")?.Value);
 
-            if (role != 2)
+            if (role != 1)
             {
                 return Forbid();
             }
@@ -160,7 +169,7 @@ namespace News_Platform.Controllers
             var userId = long.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             var role = long.Parse(User.FindFirst("role")?.Value);
 
-            if (role != 2)
+            if (role != 1)
             {
                 return Forbid();
             }
@@ -194,7 +203,7 @@ namespace News_Platform.Controllers
             }
         }
 
-
+        [AllowAnonymous]
         [HttpGet("latest")]
         public async Task<IActionResult> GetLatestNews([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
@@ -208,6 +217,7 @@ namespace News_Platform.Controllers
             return Ok(result);
         }
 
+        [AllowAnonymous]
         [HttpGet("category/{categoryId}")]
         public async Task<IActionResult> GetArticlesByCategory(long categoryId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
@@ -215,6 +225,7 @@ namespace News_Platform.Controllers
             return Ok(result);
         }
 
+        [AllowAnonymous]
         [HttpGet("search")]
         public async Task<IActionResult> SearchArticles([FromQuery] string query, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {

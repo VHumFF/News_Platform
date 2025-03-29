@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using News_Platform.Services.Interfaces;
 
 namespace News_Platform.Controllers
@@ -12,26 +14,43 @@ namespace News_Platform.Controllers
             _s3Service = s3Service;
         }
 
+        [Authorize]
         [HttpGet("presigned-url")]
         public IActionResult GetPresignedUrl(string extension = "jpg")
         {
-            var allowedExtensions = new HashSet<string> { "jpg", "jpeg", "png", "gif" };
-            if (!allowedExtensions.Contains(extension.ToLower()))
+            try
             {
-                return BadRequest("Invalid image type. Only JPG, JPEG, PNG, and GIF are allowed.");
+                if (!long.TryParse(User.FindFirst("role")?.Value, out long role))
+                {
+                    return Unauthorized(new { error = "Invalid authentication token." });
+                }
+
+                if (role != 1)
+                {
+                    return Forbid("Only journalists can upload images.");
+                }
+
+                var allowedExtensions = new HashSet<string> { "jpg", "jpeg", "png", "gif" };
+                extension = extension.ToLower();
+
+                if (!allowedExtensions.Contains(extension))
+                {
+                    return BadRequest(new { error = "Invalid image type. Only JPG, JPEG, PNG, and GIF are allowed." });
+                }
+
+                string folder = "uploads/images";
+                string fileName = $"{Guid.NewGuid()}_{DateTime.UtcNow:yyyyMMddHHmmss}.{extension}";
+                string objectKey = $"{folder}/{fileName}";
+                TimeSpan expiration = TimeSpan.FromMinutes(15);
+
+                string presignedUrl = _s3Service.GeneratePresignedUrl(objectKey, expiration, $"image/{extension}");
+
+                return Ok(new { url = presignedUrl, fileName });
             }
-
-            string folder = "uploads/images";
-            string uniqueId = Guid.NewGuid().ToString();
-            string timestamp = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
-            string fileName = $"{uniqueId}_{timestamp}.{extension}";
-
-            string objectKey = $"{folder}/{fileName}";
-            TimeSpan expiration = TimeSpan.FromMinutes(15);
-
-            string presignedUrl = _s3Service.GeneratePresignedUrl(objectKey, expiration, $"image/{extension}");
-
-            return Ok(new { url = presignedUrl, fileName });
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "An unexpected error occurred while generating the presigned URL." });
+            }
         }
 
 
