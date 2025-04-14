@@ -17,6 +17,7 @@ namespace News_Platform.Data
         public DbSet<Like> Likes { get; set; }
         public DbSet<EmailTemplate> EmailTemplates { get; set; }
         public DbSet<UserToken> UserTokens { get; set; }
+        public DbSet<ArticleView> ArticleViews { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

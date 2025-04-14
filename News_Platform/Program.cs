@@ -33,6 +33,8 @@ builder.Services.AddScoped<IUserTokenRepository, UserTokenRepository>();
 builder.Services.AddScoped<IUserTokenService, UserTokenService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IEmailTemplateRepository, EmailTemplateRepository>();
+builder.Services.AddScoped<IArticleViewRepository, ArticleViewRepository>();
+builder.Services.AddScoped<IArticleViewService, ArticleViewService>();
 
 
 

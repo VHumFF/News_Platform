@@ -19,10 +19,14 @@ namespace News_Platform.Repositories.Implementations
 
         public async Task<List<Article>> GetTrendingArticlesAsync(int limit = 20)
         {
+            DateTime now = DateTime.UtcNow;
+            DateTime last24Hours = now.AddHours(-24);
+            DateTime last7Days = now.AddDays(-7);
+
             var trendingArticles = await _context.Articles
                 .Where(a => a.Status == 1)
-                .OrderByDescending(a => a.Last24HoursViews)
-                .ThenByDescending(a => a.Last7DaysViews)
+                .OrderByDescending(a => _context.ArticleViews.Count(v => v.ArticleId == a.ArticleID && v.ViewedAt >= last24Hours))
+                .ThenByDescending(a => _context.ArticleViews.Count(v => v.ArticleId == a.ArticleID && v.ViewedAt >= last7Days))
                 .ThenByDescending(a => a.TotalViews)
                 .Take(limit)
                 .ToListAsync();
@@ -30,16 +34,21 @@ namespace News_Platform.Repositories.Implementations
             return trendingArticles;
         }
 
+
         public async Task<PaginatedResult<ArticleDto>> SearchArticlesAsync(string query, int page, int pageSize)
         {
+            DateTime now = DateTime.UtcNow;
+            DateTime last24Hours = now.AddHours(-24);
+            DateTime last7Days = now.AddDays(-7);
+
             IQueryable<Article> articlesQuery = _context.Articles
                 .Where(a => a.Status == 1)
                 .Where(a =>
                     EF.Functions.Like(a.Title, $"%{query}%") ||
                     EF.Functions.Like(a.Slug, $"%{query}%") ||
                     EF.Functions.Like(a.Content, $"%{query}%"))
-                .OrderByDescending(a => a.Last24HoursViews)
-                .ThenByDescending(a => a.Last7DaysViews)
+                .OrderByDescending(a => _context.ArticleViews.Count(v => v.ArticleId == a.ArticleID && v.ViewedAt >= last24Hours))
+                .ThenByDescending(a => _context.ArticleViews.Count(v => v.ArticleId == a.ArticleID && v.ViewedAt >= last7Days))
                 .ThenByDescending(a => a.TotalViews);
 
             int totalCount = await articlesQuery.CountAsync();
@@ -58,8 +67,8 @@ namespace News_Platform.Repositories.Implementations
                     AuthorFirstName = a.Author.FirstName,
                     AuthorLastName = a.Author.LastName,
                     CategoryName = a.Category.Name,
-                    Last24HoursViews = a.Last24HoursViews,
-                    Last7DaysViews = a.Last7DaysViews,
+                    Last24HoursViews = _context.ArticleViews.Count(v => v.ArticleId == a.ArticleID && v.ViewedAt >= last24Hours),
+                    Last7DaysViews = _context.ArticleViews.Count(v => v.ArticleId == a.ArticleID && v.ViewedAt >= last7Days),
                     TotalViews = a.TotalViews
                 })
                 .ToListAsync();
@@ -72,6 +81,7 @@ namespace News_Platform.Repositories.Implementations
                 PageSize = pageSize
             };
         }
+
 
 
 

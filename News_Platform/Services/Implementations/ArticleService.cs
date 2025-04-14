@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using News_Platform.DTOs;
 using News_Platform.Models;
+using News_Platform.Repositories.Implementations;
 using News_Platform.Repositories.Interfaces;
 using News_Platform.Services.Interfaces;
 
@@ -12,24 +13,28 @@ namespace News_Platform.Services.Implementations
         private readonly IUserRepository _userRepository;
         private readonly ICategoryRepository _categoryRepository;
         private readonly ILikeRepository _likeRepository;
+        private readonly IArticleViewService _articleViewService;
 
         public ArticleService(
          IArticleRepository articleRepository,
          IUserRepository userRepository,
          ICategoryRepository categoryRepository,
-         ILikeRepository likeRepository)
+         ILikeRepository likeRepository,
+         IArticleViewService articleViewService)
         {
             _articleRepository = articleRepository;
             _userRepository = userRepository;
             _categoryRepository = categoryRepository;
             _likeRepository = likeRepository;
+            _articleViewService = articleViewService;
         }
 
         public async Task<List<TrendingArticleDto>> GetTrendingArticlesAsync(int limit = 20)
         {
-            List<Article> trendingArticles = await _articleRepository.GetTrendingArticlesAsync(limit);
+            var articles = await _articleRepository.GetTrendingArticlesAsync(limit);
 
-            List<TrendingArticleDto> trendingDtos = trendingArticles.Select(article => new TrendingArticleDto
+
+            List<TrendingArticleDto> trendingDtos = articles.Select(article => new TrendingArticleDto
             {
                 ArticleID = article.ArticleID,
                 Title = article.Title,
@@ -37,13 +42,12 @@ namespace News_Platform.Services.Implementations
                 Status = article.Status,
                 ImageURL = article.ImageURL,
                 PublishedAt = article.PublishedAt,
-                TotalViews = article.TotalViews,
-                Last24HoursViews = article.Last24HoursViews,
-                Last7DaysViews = article.Last7DaysViews
+                TotalViews = article.TotalViews
             }).ToList();
 
             return trendingDtos;
         }
+
 
 
         public async Task<ArticleDto> GetArticle(long id, long? userId)
@@ -54,13 +58,20 @@ namespace News_Platform.Services.Implementations
                 return null;
             }
 
-            int likeCount = await _likeRepository.GetLikeCountByArticleIdAsync(id);
-            bool hasLiked = false;
+            // Increment total views
+            article.TotalViews++;
+            await _articleRepository.UpdateArticleAsync(article);
 
-            if (userId.HasValue)
-            {
-                hasLiked = await _likeRepository.UserHasLikedArticleAsync(userId.Value, id);
-            }
+            // Track the new view using ArticleViewService
+            await _articleViewService.TrackArticleViewAsync(id);
+
+            // Calculate dynamic view counts
+            int last24HoursViews = await _articleViewService.GetArticleViewsInLast24HoursAsync(id);
+            int last7DaysViews = await _articleViewService.GetArticleViewsInLast7DaysAsync(id);
+
+            // Calculate likes
+            int likeCount = await _likeRepository.GetLikeCountByArticleIdAsync(id);
+            bool hasLiked = userId.HasValue && await _likeRepository.UserHasLikedArticleAsync(userId.Value, id);
 
             return new ArticleDto
             {
@@ -76,12 +87,14 @@ namespace News_Platform.Services.Implementations
                 ImageURL = article.ImageURL ?? "No image",
                 Status = article.Status,
                 TotalViews = article.TotalViews,
-                Last24HoursViews = article.Last24HoursViews,
-                Last7DaysViews = article.Last7DaysViews,
+                Last24HoursViews = last24HoursViews,
+                Last7DaysViews = last7DaysViews,
                 LikeCount = likeCount,
                 IsLiked = hasLiked
             };
         }
+
+
 
 
 
@@ -109,8 +122,6 @@ namespace News_Platform.Services.Implementations
                 ImageURL = imageUrl,
                 Status = 0,
                 TotalViews = 0,
-                Last24HoursViews = 0,
-                Last7DaysViews = 0,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };
@@ -131,9 +142,7 @@ namespace News_Platform.Services.Implementations
                 CategoryID = article.CategoryID,
                 ImageURL = article.ImageURL ?? "No image",
                 Status = article.Status,
-                TotalViews = article.TotalViews,
-                Last24HoursViews = article.Last24HoursViews,
-                Last7DaysViews = article.Last7DaysViews
+                TotalViews = article.TotalViews
             };
         }
 
@@ -252,10 +261,7 @@ namespace News_Platform.Services.Implementations
         public async Task<PaginatedResult<ArticleDto>> GetArticlesByCategoryAsync(long categoryId, int page, int pageSize)
         {
             var query = _articleRepository.GetQueryableArticles()
-                .Where(a => a.Status == 1 && a.CategoryID == categoryId)
-                .OrderByDescending(a => a.Last24HoursViews)
-                .ThenByDescending(a => a.Last7DaysViews)
-                .ThenByDescending(a => a.TotalViews);
+                .Where(a => a.Status == 1 && a.CategoryID == categoryId);
 
             int totalArticles = await query.CountAsync();
 
@@ -274,8 +280,6 @@ namespace News_Platform.Services.Implementations
                     AuthorLastName = a.Author.LastName,
                     CategoryID = a.Category.CategoryID,
                     CategoryName = a.Category.Name,
-                    Last24HoursViews = a.Last24HoursViews,
-                    Last7DaysViews = a.Last7DaysViews,
                     TotalViews = a.TotalViews
                 })
                 .ToListAsync();
