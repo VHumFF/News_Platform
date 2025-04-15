@@ -14,17 +14,23 @@ namespace News_Platform.Repositories.Implementations
             _context = context;
         }
 
+        public async Task<UserToken> GetUserTokenAsync(long userId, long tokenType)
+        {
+            return await _context.UserTokens
+                .FirstOrDefaultAsync(t => t.UserID == userId && t.TokenType == tokenType);
+        }
+
         public async Task<UserToken> GetValidTokenAsync(string token, long tokenType)
         {
             var validToken = await _context.UserTokens
                 .FirstOrDefaultAsync(t => t.Token == token &&
                                           t.TokenType == tokenType &&
-                                          t.ExpiresAt > DateTime.UtcNow);
+                                          t.ExpiresAt > DateTime.UtcNow.AddHours(8));
 
             Console.WriteLine($"Checking token: {token}");
             Console.WriteLine($"Found token: {(validToken != null ? "Yes" : "No")}");
             Console.WriteLine($"DB Expiration: {validToken?.ExpiresAt}");
-            Console.WriteLine($"Current UTC Time: {DateTime.UtcNow}");
+            Console.WriteLine($"Current Time: {DateTime.UtcNow.AddHours(8)}");
 
             return validToken;
         }

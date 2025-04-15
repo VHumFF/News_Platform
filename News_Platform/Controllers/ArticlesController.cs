@@ -58,23 +58,27 @@ namespace News_Platform.Controllers
         {
             try
             {
-                if (!long.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out long userId) ||
-                    !long.TryParse(User.FindFirst("role")?.Value, out long role))
-                {
-                    return Unauthorized(new { error = "Invalid authentication token." });
-                }
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var roleClaim = User.FindFirst(ClaimTypes.Role)?.Value;
 
-                if (role != 1)
+                if (!long.TryParse(roleClaim, out long role) || role != 1)
                 {
                     return Forbid("You do not have permission to add an article.");
                 }
 
+                if (!long.TryParse(userId, out long parsedUserId))
+                {
+                    return Unauthorized("Invalid user ID.");
+                }
+
                 var article = await _articleService.AddArticleAsync(
                     request.Title,
+                    request.Description,
+                    request.status,
                     request.Content,
                     request.CategoryID,
                     request.ImageURL,
-                    userId
+                    parsedUserId
                 );
 
                 return CreatedAtAction(nameof(GetArticleById), new { id = article.ArticleID }, article);
@@ -83,11 +87,12 @@ namespace News_Platform.Controllers
             {
                 return BadRequest(new { error = ex.Message });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return StatusCode(500, new { error = "An unexpected error occurred while adding the article." });
             }
         }
+
 
 
         [HttpPut("{articleId}")]
@@ -95,9 +100,9 @@ namespace News_Platform.Controllers
         public async Task<IActionResult> UpdateArticle(long articleId, [FromBody] UpdateArticleRequest request)
         {
             var userId = long.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-            var role = long.Parse(User.FindFirst("role")?.Value);
+            var roleClaim = User.FindFirst(ClaimTypes.Role)?.Value;
 
-            if (role != 1)
+            if (!long.TryParse(roleClaim, out long role) || role != 1)
             {
                 return Forbid();
             }
@@ -109,7 +114,7 @@ namespace News_Platform.Controllers
 
             try
             {
-                var result = await _articleService.UpdateArticleAsync(articleId, request.Title, request.Content, request.CategoryID, userId);
+                var result = await _articleService.UpdateArticleAsync(articleId, request.Title, request.Description, request.Content, request.CategoryID, userId);
 
                 if (!result)
                 {
@@ -133,7 +138,7 @@ namespace News_Platform.Controllers
         public async Task<IActionResult> DeleteArticle(long articleId)
         {
             var userId = long.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-            var role = long.Parse(User.FindFirst("role")?.Value);
+            var role = long.Parse(User.FindFirst(ClaimTypes.Role)?.Value);
 
             if (role != 1)
             {
@@ -167,9 +172,9 @@ namespace News_Platform.Controllers
         public async Task<IActionResult> PublishArticle(long articleId)
         {
             var userId = long.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-            var role = long.Parse(User.FindFirst("role")?.Value);
+            var roleClaim = User.FindFirst(ClaimTypes.Role)?.Value;
 
-            if (role != 1)
+            if (!long.TryParse(roleClaim, out long role) || role != 1)
             {
                 return Forbid();
             }
@@ -219,11 +224,22 @@ namespace News_Platform.Controllers
 
         [AllowAnonymous]
         [HttpGet("category/{categoryId}")]
-        public async Task<IActionResult> GetArticlesByCategory(long categoryId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        public async Task<IActionResult> GetArticlesByCategory(long categoryId, long listType, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
-            var result = await _articleService.GetArticlesByCategoryAsync(categoryId, page, pageSize);
-            return Ok(result);
+            if (listType == 0)
+            {
+                var result = await _articleService.GetArticlesByCategoryAsync(categoryId, page, pageSize);
+                return Ok(result);
+            }
+            else if (listType == 1)
+            {
+                var result = await _articleService.GetTrendingArticlesByCategoryAsync(categoryId, page, pageSize);
+                return Ok(result);
+            }
+
+            return BadRequest("Invalid listType. Use 0 for latest or 1 for trending.");
         }
+
 
         [AllowAnonymous]
         [HttpGet("search")]
@@ -237,6 +253,19 @@ namespace News_Platform.Controllers
             var result = await _articleService.SearchArticlesAsync(query, page, pageSize);
             return Ok(result);
         }
+
+
+        [Authorize]
+        [HttpGet("/journalist/articles")]
+        public async Task<ActionResult<PaginatedResult<ArticleDto>>> GetJournalistArticlesByStatus(long status, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+            var userId = long.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+
+            var result = await _articleService.GetArticleByStatusAndAuthorId(userId, status, page, pageSize);
+            return Ok(result);
+        }
+
+
 
 
 

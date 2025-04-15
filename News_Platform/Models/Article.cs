@@ -17,6 +17,9 @@ namespace News_Platform.Models
         [MaxLength(255)]
         public string Slug { get; set; }
 
+        [MaxLength(255)]
+        public string Description { get; set; }
+
         [Required]
         public string Content { get; set; }
 
@@ -41,8 +44,9 @@ namespace News_Platform.Models
 
         public DateTime? PublishedAt { get; set; }
 
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow.AddHours(8);
 
-        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow.AddHours(8);
+
     }
 }

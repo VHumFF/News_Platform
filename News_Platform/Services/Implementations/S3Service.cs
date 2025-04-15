@@ -41,7 +41,7 @@ namespace News_Platform.Services.Implementations
                 BucketName = _bucketName,
                 Key = objectKey,
                 Verb = HttpVerb.PUT,
-                Expires = DateTime.UtcNow.Add(expirationDuration),
+                Expires = DateTime.UtcNow.AddHours(8).Add(expirationDuration),
                 ContentType = contentType
             };
 

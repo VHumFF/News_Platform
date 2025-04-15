@@ -17,8 +17,13 @@ namespace News_Platform.Services.Implementations
 
         private string GenerateSecureToken()
         {
-            return Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
+            var bytes = RandomNumberGenerator.GetBytes(32);
+            return Convert.ToBase64String(bytes)
+                .Replace("+", "-")  // URL-safe
+                .Replace("/", "_")  // URL-safe
+                .Replace("=", "");  // Remove padding
         }
+
 
         public async Task<string> GenerateTokenAsync(long userId, long tokenType)
         {
@@ -28,7 +33,7 @@ namespace News_Platform.Services.Implementations
                 UserID = userId,
                 Token = token,
                 TokenType = tokenType,
-                ExpiresAt = DateTime.UtcNow.AddDays(7)
+                ExpiresAt = DateTime.UtcNow.AddHours(8).AddDays(7)
             };
 
             await _tokenRepository.SaveTokenAsync(userToken);
@@ -41,19 +46,26 @@ namespace News_Platform.Services.Implementations
             return userToken != null;
         }
 
-        //public async Task InvalidateTokenAsync(long userId, long tokenType)
-        //{
-        //    var userToken = await _tokenRepository.GetValidTokenAsync(userId, null, tokenType);
-        //    if (userToken != null)
-        //    {
-        //        await _tokenRepository.DeleteTokenAsync(userToken);
-        //    }
-        //}
+        public async Task InvalidateTokenAsync(string token, long tokenType)
+        {
+            var userToken = await _tokenRepository.GetValidTokenAsync(token, tokenType);
+            if (userToken != null)
+            {
+                await _tokenRepository.DeleteTokenAsync(userToken);
+            }
+        }
+
+        public async Task<UserToken> GetUserTokenAsync(long userId, long tokenType)
+        {
+            var userToken = await _tokenRepository.GetUserTokenAsync(userId, tokenType);
+            return userToken;
+        }
 
         public async Task<long?> GetUserIdFromTokenAsync(string token, long tokenType)
         {
             var userToken = await _tokenRepository.GetValidTokenAsync(token, tokenType);
             return userToken?.UserID; // Return UserID if valid token is found, otherwise null
         }
+
     }
 }

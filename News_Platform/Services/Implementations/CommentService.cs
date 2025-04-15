@@ -80,8 +80,8 @@ namespace News_Platform.Services.Implementations
                 UserID = userId,
                 Content = content,
                 ParentCommentID = parentCommentId,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow.AddHours(8),
+                UpdatedAt = DateTime.UtcNow.AddHours(8)
             };
 
             await _commentRepository.AddCommentAsync(comment);

@@ -19,7 +19,7 @@ namespace News_Platform.Repositories.Implementations
 
         public async Task<List<Article>> GetTrendingArticlesAsync(int limit = 20)
         {
-            DateTime now = DateTime.UtcNow;
+            DateTime now = DateTime.UtcNow.AddHours(8);
             DateTime last24Hours = now.AddHours(-24);
             DateTime last7Days = now.AddDays(-7);
 
@@ -37,7 +37,7 @@ namespace News_Platform.Repositories.Implementations
 
         public async Task<PaginatedResult<ArticleDto>> SearchArticlesAsync(string query, int page, int pageSize)
         {
-            DateTime now = DateTime.UtcNow;
+            DateTime now = DateTime.UtcNow.AddHours(8);
             DateTime last24Hours = now.AddHours(-24);
             DateTime last7Days = now.AddDays(-7);
 
@@ -61,6 +61,7 @@ namespace News_Platform.Repositories.Implementations
                     ArticleID = a.ArticleID,
                     Title = a.Title,
                     Slug = a.Slug,
+                    Description = a.Description,
                     Content = a.Content,
                     ImageURL = a.ImageURL,
                     PublishedAt = a.PublishedAt,
@@ -81,6 +82,58 @@ namespace News_Platform.Repositories.Implementations
                 PageSize = pageSize
             };
         }
+
+        public async Task<(IQueryable<Article> Query, int TotalCount)> GetTrendingArticlesByCategoryAsync(long categoryId)
+        {
+            DateTime now = DateTime.UtcNow.AddHours(8);
+            DateTime last24Hours = now.AddHours(-24);
+            DateTime last7Days = now.AddDays(-7);
+
+            // Pre-aggregate view counts
+            var viewCounts = _context.ArticleViews
+                .GroupBy(v => v.ArticleId)
+                .Select(g => new
+                {
+                    ArticleId = g.Key,
+                    Views24h = g.Count(v => v.ViewedAt >= last24Hours),
+                    Views7d = g.Count(v => v.ViewedAt >= last7Days)
+                });
+
+            var query = _context.Articles
+                .Where(a => a.Status == 1 && a.CategoryID == categoryId)
+                .Join(viewCounts,
+                      article => article.ArticleID,
+                      views => views.ArticleId,
+                      (article, views) => new
+                      {
+                          Article = article,
+                          Views24h = views.Views24h,
+                          Views7d = views.Views7d
+                      })
+                .OrderByDescending(a => a.Views24h)
+                .ThenByDescending(a => a.Views7d)
+                .ThenByDescending(a => a.Article.TotalViews)
+                .Select(a => a.Article);
+
+            int totalCount = await query.CountAsync();
+
+            return (query, totalCount);
+        }
+
+
+
+        public async Task<(IQueryable<Article> Query, int TotalCount)> GetArticlesByStatusAndAuthorIdAsync(long authorId, long status)
+        {
+            var query = _context.Articles
+                .Where(a => a.AuthorID == authorId && a.Status == status)
+                .AsQueryable();
+
+            var totalCount = await query.CountAsync();
+
+            return (query, totalCount);
+        }
+
+
 
 
 

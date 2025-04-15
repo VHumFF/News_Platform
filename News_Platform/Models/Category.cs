@@ -18,10 +18,10 @@ namespace News_Platform.Models
         public string Description { get; set; }
 
         [Column("CreatedAt")]
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow.AddHours(8);
 
         [Column("UpdatedAt")]
-        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow.AddHours(8);
 
         public ICollection<Article> Articles { get; set; }
     }

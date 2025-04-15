@@ -16,7 +16,7 @@ namespace News_Platform.Models
         public long? CommentID { get; set; }
 
         [Required]
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow.AddHours(8);
 
         [ForeignKey("UserID")]
         public virtual User User { get; set; }

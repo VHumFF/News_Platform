@@ -4,6 +4,7 @@ using News_Platform.Models;
 using News_Platform.Repositories.Implementations;
 using News_Platform.Repositories.Interfaces;
 using News_Platform.Services.Interfaces;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace News_Platform.Services.Implementations
 {
@@ -39,6 +40,7 @@ namespace News_Platform.Services.Implementations
                 ArticleID = article.ArticleID,
                 Title = article.Title,
                 Slug = article.Slug,
+                Description = article.Description,
                 Status = article.Status,
                 ImageURL = article.ImageURL,
                 PublishedAt = article.PublishedAt,
@@ -78,6 +80,7 @@ namespace News_Platform.Services.Implementations
                 ArticleID = article.ArticleID,
                 Title = article.Title ?? "Untitled",
                 Slug = article.Slug ?? "no-slug",
+                Description = article.Description ?? "No description available",
                 Content = article.Content ?? "No content available",
                 AuthorID = article.AuthorID,
                 AuthorFirstName = article.Author?.FirstName ?? "Unknown",
@@ -90,6 +93,7 @@ namespace News_Platform.Services.Implementations
                 Last24HoursViews = last24HoursViews,
                 Last7DaysViews = last7DaysViews,
                 LikeCount = likeCount,
+                PublishedAt = article.PublishedAt,
                 IsLiked = hasLiked
             };
         }
@@ -98,7 +102,7 @@ namespace News_Platform.Services.Implementations
 
 
 
-        public async Task<ArticleDto> AddArticleAsync(string title, string content, long categoryId, string imageUrl, long userId)
+        public async Task<ArticleDto> AddArticleAsync(string title, string description, long status, string content, long categoryId, string imageUrl, long userId)
         {
             var category = await _categoryRepository.GetCategoryByIdAsync(categoryId);
             if (category == null)
@@ -115,15 +119,17 @@ namespace News_Platform.Services.Implementations
             var article = new Article
             {
                 Title = title,
+                Description = description,
                 Content = content,
                 Slug = GenerateSlug(title),
                 AuthorID = userId,
                 CategoryID = categoryId,
                 ImageURL = imageUrl,
-                Status = 0,
+                Status = status,
+                PublishedAt = status == 1 ? DateTime.UtcNow.AddHours(8) : null,
                 TotalViews = 0,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow.AddHours(8),
+                UpdatedAt = DateTime.UtcNow.AddHours(8)
             };
 
 
@@ -135,6 +141,7 @@ namespace News_Platform.Services.Implementations
                 ArticleID = article.ArticleID,
                 Title = article.Title,
                 Slug = article.Slug,
+                Description = article.Description,
                 Content = article.Content,
                 AuthorID = article.AuthorID,
                 AuthorFirstName = author.FirstName,
@@ -147,7 +154,7 @@ namespace News_Platform.Services.Implementations
         }
 
 
-        public async Task<bool> UpdateArticleAsync(long articleId, string title, string content, long categoryId, long authorId)
+        public async Task<bool> UpdateArticleAsync(long articleId, string title, string description, string content, long categoryId, long authorId)
         {
             var article = await _articleRepository.GetArticleByIdAsync(articleId);
             if (article == null)
@@ -161,6 +168,8 @@ namespace News_Platform.Services.Implementations
             }
 
             article.Title = title;
+            article.Slug = GenerateSlug(title);
+            article.Description = description;
             article.Content = content;
             article.CategoryID = categoryId;
 
@@ -214,7 +223,7 @@ namespace News_Platform.Services.Implementations
             }
 
             article.Status = 1;
-            article.PublishedAt = DateTime.UtcNow;
+            article.PublishedAt = DateTime.UtcNow.AddHours(8);
 
             await _articleRepository.UpdateArticleAsync(article);
 
@@ -239,6 +248,7 @@ namespace News_Platform.Services.Implementations
                     ArticleID = a.ArticleID,
                     Title = a.Title,
                     Slug = a.Slug,
+                    Description = a.Description,
                     Content = a.Content,
                     ImageURL = a.ImageURL,
                     PublishedAt = a.PublishedAt,
@@ -261,7 +271,8 @@ namespace News_Platform.Services.Implementations
         public async Task<PaginatedResult<ArticleDto>> GetArticlesByCategoryAsync(long categoryId, int page, int pageSize)
         {
             var query = _articleRepository.GetQueryableArticles()
-                .Where(a => a.Status == 1 && a.CategoryID == categoryId);
+                .Where(a => a.Status == 1 && a.CategoryID == categoryId)
+                .OrderByDescending(a => a.PublishedAt);
 
             int totalArticles = await query.CountAsync();
 
@@ -273,6 +284,7 @@ namespace News_Platform.Services.Implementations
                     ArticleID = a.ArticleID,
                     Title = a.Title,
                     Slug = a.Slug,
+                    Description = a.Description,
                     Content = a.Content,
                     ImageURL = a.ImageURL,
                     PublishedAt = a.PublishedAt,
@@ -293,12 +305,81 @@ namespace News_Platform.Services.Implementations
             };
         }
 
+        public async Task<PaginatedResult<ArticleDto>> GetTrendingArticlesByCategoryAsync(long categoryId, int page, int pageSize)
+        {
+            var (query, totalCount) = await _articleRepository.GetTrendingArticlesByCategoryAsync(categoryId);
+
+            var articles = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(a => new ArticleDto
+                {
+                    ArticleID = a.ArticleID,
+                    Title = a.Title,
+                    Slug = a.Slug,
+                    Description = a.Description,
+                    Content = a.Content,
+                    ImageURL = a.ImageURL,
+                    PublishedAt = a.PublishedAt,
+                    AuthorFirstName = a.Author.FirstName,
+                    AuthorLastName = a.Author.LastName,
+                    CategoryID = a.Category.CategoryID,
+                    CategoryName = a.Category.Name,
+                    TotalViews = a.TotalViews
+                })
+                .ToListAsync();
+
+            return new PaginatedResult<ArticleDto>
+            {
+                Items = articles,
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize
+            };
+        }
+
+
 
         public async Task<PaginatedResult<ArticleDto>> SearchArticlesAsync(string query, int page, int pageSize)
         {
             return await _articleRepository.SearchArticlesAsync(query, page, pageSize);
         }
 
+
+        public async Task<PaginatedResult<ArticleDto>> GetArticleByStatusAndAuthorId(long authorId, long status, int page, int pageSize)
+        {
+            var (query, totalCount) = await _articleRepository.GetArticlesByStatusAndAuthorIdAsync(authorId, status);
+
+            var articles = await query
+                .OrderByDescending(a => a.PublishedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(a => new ArticleDto
+                {
+                    ArticleID = a.ArticleID,
+                    Title = a.Title,
+                    Slug = a.Slug,
+                    Description = a.Description,
+                    Content = a.Content,
+                    Status = a.Status,
+                    ImageURL = a.ImageURL,
+                    PublishedAt = a.PublishedAt,
+                    AuthorFirstName = a.Author.FirstName,
+                    AuthorLastName = a.Author.LastName,
+                    CategoryID = a.Category.CategoryID,
+                    CategoryName = a.Category.Name,
+                    TotalViews = a.TotalViews
+                })
+                .ToListAsync();
+
+            return new PaginatedResult<ArticleDto>
+            {
+                Items = articles,
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize
+            };
+        }
 
 
 

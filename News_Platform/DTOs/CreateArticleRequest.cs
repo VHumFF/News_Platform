@@ -8,6 +8,12 @@ namespace News_Platform.DTOs
         [StringLength(100, ErrorMessage = "Title cannot be longer than 100 characters.")]
         public string Title { get; set; }
 
+        public string Description { get; set; }
+
+        [Range(0, 1, ErrorMessage = "Status must be either 0 (draft) or 1 (published).")]
+        public long status { get; set; } = 0;
+
+
         [Required(ErrorMessage = "Content is required.")]
         [StringLength(50000, ErrorMessage = "Content cannot be longer than 50000 characters.")]
         public string Content { get; set; }

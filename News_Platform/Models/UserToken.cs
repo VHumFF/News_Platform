@@ -16,12 +16,12 @@ namespace News_Platform.Models
         public string Token { get; set; }
 
         [Required]
-        public long TokenType { get; set; } // 1 = Activation, 2 = Password Reset
+        public long TokenType { get; set; } // 1 = Activation, 2 = journalist activation, 3 = Password Reset
 
         [Required]
         public DateTime ExpiresAt { get; set; }
 
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow.AddHours(8);
 
         [ForeignKey("UserID")]
         public virtual User User { get; set; }

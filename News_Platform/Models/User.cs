@@ -29,6 +29,7 @@ public class User
     public long Role { get; set; } = 0; // 0 for normal user, 1 for journalist
     public long Status { get; set; } = 0; // 0 for inactive, 1 for active
 
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow.AddHours(8);
+    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow.AddHours(8);
+
 }

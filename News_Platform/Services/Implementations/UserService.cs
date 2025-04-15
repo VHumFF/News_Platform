@@ -122,11 +122,12 @@ namespace News_Platform.Services.Implementations
             }
             if (user.Status == 0)
             {
+                //TODO: Add a method to check if the user is activated
                 throw new UnauthorizedAccessException("User is not activated.");
             }
 
 
-            return _jwtUtility.GenerateToken(user.UserID, user.Role);
+            return _jwtUtility.GenerateToken(user.UserID, user.Role, user.FirstName + " " + user.LastName);
         }
 
         public async Task ChangeUserPassword(long userId, string oldPassword, string newPassword)

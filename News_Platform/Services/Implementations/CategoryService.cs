@@ -24,10 +24,7 @@ namespace News_Platform.Services.Implementations
             return new CategoryDto
             {
                 CategoryID = category.CategoryID,
-                Name = category.Name,
-                Description = category.Description,
-                CreatedAt = category.CreatedAt,
-                UpdatedAt = category.UpdatedAt
+                Name = category.Name
             };
         }
 
@@ -37,10 +34,7 @@ namespace News_Platform.Services.Implementations
             return categories.Select(c => new CategoryDto
             {
                 CategoryID = c.CategoryID,
-                Name = c.Name,
-                Description = c.Description,
-                CreatedAt = c.CreatedAt,
-                UpdatedAt = c.UpdatedAt
+                Name = c.Name
             });
         }
 
@@ -58,10 +52,7 @@ namespace News_Platform.Services.Implementations
             return new CategoryDto
             {
                 CategoryID = category.CategoryID,
-                Name = category.Name,
-                Description = category.Description,
-                CreatedAt = category.CreatedAt,
-                UpdatedAt = category.UpdatedAt
+                Name = category.Name
             };
         }
     }

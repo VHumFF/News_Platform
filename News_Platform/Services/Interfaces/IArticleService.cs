@@ -1,4 +1,5 @@
-﻿using News_Platform.DTOs;
+﻿using Microsoft.AspNetCore.Mvc.RazorPages;
+using News_Platform.DTOs;
 using News_Platform.Models;
 
 namespace News_Platform.Services.Interfaces
@@ -12,13 +13,16 @@ namespace News_Platform.Services.Interfaces
         Task AddArticleAsync(Article article);
         Task DeleteArticleAsync(long id);
         Task<ArticleDto> GetArticle(long id, long? userId);
-        Task<ArticleDto> AddArticleAsync(string title, string content, long categoryId, string imageUrl, long userId);
-        Task<bool> UpdateArticleAsync(long articleId, string title, string content, long categoryId, long authorId);
+        Task<ArticleDto> AddArticleAsync(string title,string description,long status, string content, long categoryId, string imageUrl, long userId);
+        Task<bool> UpdateArticleAsync(long articleId, string title,string description, string content, long categoryId, long authorId);
         Task<bool> DeleteArticleAsync(long articleId, long userId);
         Task<bool> PublishArticleAsync(long articleId, long authorId);
         Task<PaginatedResult<ArticleDto>> GetLatestNewsAsync(int page, int pageSize);
         Task<PaginatedResult<ArticleDto>> GetArticlesByCategoryAsync(long categoryId, int page, int pageSize);
+        Task<PaginatedResult<ArticleDto>> GetTrendingArticlesByCategoryAsync(long categoryId, int page, int pageSize);
         Task<PaginatedResult<ArticleDto>> SearchArticlesAsync(string query, int page, int pageSize);
+        Task<PaginatedResult<ArticleDto>> GetArticleByStatusAndAuthorId(long authorId, long status, int page, int pageSize);
+
 
 
     }

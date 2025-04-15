@@ -7,5 +7,6 @@ namespace News_Platform.Repositories.Interfaces
         Task<UserToken> GetValidTokenAsync(string token, long tokenType);
         Task SaveTokenAsync(UserToken userToken);
         Task DeleteTokenAsync(UserToken userToken);
+        Task<UserToken> GetUserTokenAsync(long userId, long tokenType);
     }
 }

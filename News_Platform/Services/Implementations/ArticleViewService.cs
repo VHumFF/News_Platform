@@ -18,19 +18,19 @@ namespace News_Platform.Services.Implementations
             var articleView = new ArticleView
             {
                 ArticleId = articleId,
-                ViewedAt = DateTime.UtcNow
+                ViewedAt = DateTime.UtcNow.AddHours(8)
             };
             await _articleViewRepository.AddArticleViewAsync(articleView);
         }
 
         public async Task<int> GetArticleViewsInLast24HoursAsync(long articleId)
         {
-            return await _articleViewRepository.GetArticleViewsCountAsync(articleId, DateTime.UtcNow.AddHours(-24));
+            return await _articleViewRepository.GetArticleViewsCountAsync(articleId, DateTime.UtcNow.AddHours(8).AddHours(-24));
         }
 
         public async Task<int> GetArticleViewsInLast7DaysAsync(long articleId)
         {
-            return await _articleViewRepository.GetArticleViewsCountAsync(articleId, DateTime.UtcNow.AddDays(-7));
+            return await _articleViewRepository.GetArticleViewsCountAsync(articleId, DateTime.UtcNow.AddHours(8).AddDays(-7));
         }
     }
 

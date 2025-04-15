@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using News_Platform.DTOs;
 using News_Platform.Services.Implementations;
@@ -16,15 +17,17 @@ namespace News_Platform.Controllers
             _userService = userService;
         }
 
-        [Authorize]
         [HttpPost("register-journalist")]
         public async Task<IActionResult> RegisterJournalistUser([FromBody] JournalistUserCreationDto adminUserCreationDto)
         {
             try
             {
-                if (!long.TryParse(User.FindFirst("role")?.Value, out long role) || role != 2)
+                var roleClaim = User.FindFirst(ClaimTypes.Role)?.Value;
+
+
+                if (!long.TryParse(roleClaim, out long role) || role != 2)
                 {
-                    return Forbid("Only Admins can register journalists.");
+                    return Forbid(); // Not an admin
                 }
 
                 if (!ModelState.IsValid)
@@ -54,6 +57,8 @@ namespace News_Platform.Controllers
                 return StatusCode(500, new { error = "An unexpected error occurred while creating the account." });
             }
         }
+
+
 
     }
 }

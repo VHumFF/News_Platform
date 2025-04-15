@@ -18,6 +18,10 @@
         IQueryable<Article> GetQueryableArticles();
         Task<PaginatedResult<ArticleDto>> SearchArticlesAsync(string query, int page, int pageSize);
 
+        Task<(IQueryable<Article> Query, int TotalCount)> GetTrendingArticlesByCategoryAsync(long categoryId);
+
+        Task<(IQueryable<Article> Query, int TotalCount)> GetArticlesByStatusAndAuthorIdAsync(long authorId, long status);
+
     }
 
 

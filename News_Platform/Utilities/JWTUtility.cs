@@ -17,7 +17,7 @@ namespace News_Platform.Utilities
             _configuration = configuration;
         }
 
-        public string GenerateToken(long userId, long role)
+        public string GenerateToken(long userId, long role, string name)
         {
             var keyString = _configuration.GetValue<string>("JwtSettings:Key");
             if (string.IsNullOrEmpty(keyString))
@@ -31,6 +31,7 @@ namespace News_Platform.Utilities
             {
                 new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
                 new Claim("role", role.ToString()),
+                new Claim("username", name),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
@@ -38,7 +39,7 @@ namespace News_Platform.Utilities
                 issuer: _configuration["JwtSettings:Issuer"],
                 audience: _configuration["JwtSettings:Audience"],
                 claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(expirationMinutes),
+                expires: DateTime.UtcNow.AddHours(8).AddMinutes(expirationMinutes),
                 signingCredentials: new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256)
             );
 

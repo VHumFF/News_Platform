@@ -26,8 +26,8 @@ namespace News_Platform.Models
 
         public int Status { get; set; } = 0; // 0 = pending, 1 = approved, 2 = rejected
 
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow.AddHours(8);
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow.AddHours(8);
 
         public ICollection<Like> Likes { get; set; } = new List<Like>();
     }

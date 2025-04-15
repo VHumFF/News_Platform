@@ -20,7 +20,9 @@ namespace News_Platform.Controllers
         {
             try
             {
-                if (!long.TryParse(User.FindFirst("role")?.Value, out long role))
+                var roleClaim = User.FindFirst(ClaimTypes.Role)?.Value;
+
+                if (!long.TryParse(roleClaim, out long role))
                 {
                     return Unauthorized(new { error = "Invalid authentication token." });
                 }
@@ -39,7 +41,7 @@ namespace News_Platform.Controllers
                 }
 
                 string folder = "uploads/images";
-                string fileName = $"{Guid.NewGuid()}_{DateTime.UtcNow:yyyyMMddHHmmss}.{extension}";
+                string fileName = $"{Guid.NewGuid()}_{DateTime.UtcNow.AddHours(8):yyyyMMddHHmmss}.{extension}";
                 string objectKey = $"{folder}/{fileName}";
                 TimeSpan expiration = TimeSpan.FromMinutes(15);
 
