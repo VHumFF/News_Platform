@@ -224,7 +224,7 @@ namespace News_Platform.Controllers
 
         [AllowAnonymous]
         [HttpGet("category/{categoryId}")]
-        public async Task<IActionResult> GetArticlesByCategory(long categoryId, long listType, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        public async Task<IActionResult> GetArticlesByCategory(long categoryId, int listType, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
             if (listType == 0)
             {
