@@ -1,8 +1,9 @@
-﻿using Amazon.Runtime;
+﻿using Amazon;
+using Amazon.Runtime;
 using Amazon.S3;
 using Amazon.S3.Model;
-using Amazon;
 using News_Platform.Services.Interfaces;
+using News_Platform.Utilities;
 
 namespace News_Platform.Services.Implementations
 {
@@ -13,11 +14,34 @@ namespace News_Platform.Services.Implementations
 
         public S3Service(IConfiguration configuration)
         {
-            var profileName = "default";
-            var credentials = new StoredProfileAWSCredentials(profileName);
-            var region = RegionEndpoint.USEast1;
+            var awsOptions = new AwsOptions
+            {
+                AccessKey = Environment.GetEnvironmentVariable("AWS_ACCESS_KEY_ID"),
+                SecretKey = Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY"),
+                SessionToken = Environment.GetEnvironmentVariable("AWS_SESSION_TOKEN"),
+                Region = configuration["AWS:Region"],
+                BucketName = configuration["AWS:BucketName"]
+            };
 
-            _bucketName = configuration["AWS:BucketName"];
+            AWSCredentials credentials;
+
+            if (!string.IsNullOrEmpty(awsOptions.SessionToken))
+            {
+                credentials = new SessionAWSCredentials(
+                    awsOptions.AccessKey,
+                    awsOptions.SecretKey,
+                    awsOptions.SessionToken
+                );
+            }
+            else
+            {
+                credentials = new BasicAWSCredentials(
+                    awsOptions.AccessKey,
+                    awsOptions.SecretKey
+                );
+            }
+
+            var region = RegionEndpoint.GetBySystemName(awsOptions.Region);
 
             var config = new AmazonS3Config
             {
@@ -25,6 +49,8 @@ namespace News_Platform.Services.Implementations
                 SignatureVersion = "4",
                 ForcePathStyle = true
             };
+
+            _bucketName = awsOptions.BucketName;
 
             _s3Client = new AmazonS3Client(credentials, config);
         }
@@ -47,9 +73,5 @@ namespace News_Platform.Services.Implementations
 
             return _s3Client.GetPreSignedURL(request);
         }
-
-
-
-
     }
 }

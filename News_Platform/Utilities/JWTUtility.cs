@@ -17,7 +17,7 @@ namespace News_Platform.Utilities
             _configuration = configuration;
         }
 
-        public string GenerateToken(long userId, long role, string name)
+        public string GenerateToken(long userId, long role, string name, string email)
         {
             var keyString = _configuration.GetValue<string>("JwtSettings:Key");
             if (string.IsNullOrEmpty(keyString))
@@ -32,6 +32,7 @@ namespace News_Platform.Utilities
                 new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
                 new Claim("role", role.ToString()),
                 new Claim("username", name),
+                new Claim("email", email),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 

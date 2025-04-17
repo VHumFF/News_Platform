@@ -1,11 +1,11 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations; // Add this namespace
+using System.ComponentModel.DataAnnotations;
 
 namespace News_Platform.Models
 {
     public class EmailTemplate
     {
-        [Key] // This marks TemplateID as the primary key
+        [Key]
         public int TemplateID { get; set; }
 
         public string TemplateName { get; set; }

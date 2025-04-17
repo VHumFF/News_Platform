@@ -36,7 +36,7 @@ namespace News_Platform.Controllers
             }
             catch (Exception ex)
             {
-                // You can log the exception here
+
                 return StatusCode(500, ex.Message);
             }
         }
@@ -61,7 +61,6 @@ namespace News_Platform.Controllers
             }
             catch (Exception ex)
             {
-                // You can log the exception here
                 return StatusCode(500, ex.Message);
             }
         }

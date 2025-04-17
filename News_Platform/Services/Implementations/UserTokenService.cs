@@ -19,9 +19,9 @@ namespace News_Platform.Services.Implementations
         {
             var bytes = RandomNumberGenerator.GetBytes(32);
             return Convert.ToBase64String(bytes)
-                .Replace("+", "-")  // URL-safe
-                .Replace("/", "_")  // URL-safe
-                .Replace("=", "");  // Remove padding
+                .Replace("+", "-")
+                .Replace("/", "_")
+                .Replace("=", "");
         }
 
 
