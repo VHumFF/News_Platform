@@ -40,3 +40,24 @@ For development, you can use the following command to run the application:
 ```bash
 dotnet watch run
 ```
+
+### Configuration
+
+Update the `appsettings.json` file with the following configuration:
+
+```json
+{
+  "JwtSettings": {
+    "Issuer": "https://34.234.194.143:5239",
+    "Audience": "http://3.93.27.238:5173"
+  },
+  "AppSettings": {
+    "FrontendUrl": "http://3.93.27.238:5173"
+  },
+  "Cors": {
+    "AllowedOrigins": ["http://3.93.27.238:5173"]
+  }
+}
+```
+
+Ensure the `FrontendUrl` and `AllowedOrigins` match your frontend's URL, and the `Issuer` corresponds to your backend's URL.
