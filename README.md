@@ -40,11 +40,3 @@ For development, you can use the following command to run the application:
 ```bash
 dotnet watch run
 ```
-
-### Testing
-
-Run tests with:
-
-```bash
-dotnet test
-```
