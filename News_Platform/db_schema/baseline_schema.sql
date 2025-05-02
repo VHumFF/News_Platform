@@ -1,6 +1,6 @@
 /*
 SQLyog Community v13.3.0 (64 bit)
-MySQL - 9.2.0 : Database - NewsWebsiteDB
+MySQL - 8.0.40 : Database - NewsWebsiteDB
 *********************************************************************
 */
 
@@ -16,20 +16,6 @@ CREATE DATABASE /*!32312 IF NOT EXISTS*/`NewsWebsiteDB` /*!40100 DEFAULT CHARACT
 
 USE `NewsWebsiteDB`;
 
-/*Table structure for table `ArticleTags` */
-
-DROP TABLE IF EXISTS `ArticleTags`;
-
-CREATE TABLE `ArticleTags` (
-  `ArticleID` bigint NOT NULL,
-  `TagID` bigint NOT NULL,
-  PRIMARY KEY (`ArticleID`,`TagID`),
-  KEY `idx_articletags_article` (`ArticleID`),
-  KEY `idx_articletags_tag` (`TagID`),
-  CONSTRAINT `ArticleTags_ibfk_1` FOREIGN KEY (`ArticleID`) REFERENCES `Articles` (`ArticleID`) ON DELETE CASCADE,
-  CONSTRAINT `ArticleTags_ibfk_2` FOREIGN KEY (`TagID`) REFERENCES `Tags` (`TagID`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
 /*Table structure for table `ArticleViews` */
 
 DROP TABLE IF EXISTS `ArticleViews`;
@@ -42,7 +28,7 @@ CREATE TABLE `ArticleViews` (
   KEY `IDX_ArticleViews_ArticleId` (`ArticleId`),
   KEY `IDX_ArticleViews_ViewedAt` (`ViewedAt`),
   CONSTRAINT `FK_ArticleViews_Articles` FOREIGN KEY (`ArticleId`) REFERENCES `Articles` (`ArticleID`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=850 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 /*Table structure for table `Articles` */
 
@@ -52,6 +38,7 @@ CREATE TABLE `Articles` (
   `ArticleID` bigint NOT NULL AUTO_INCREMENT,
   `Title` varchar(255) NOT NULL,
   `Slug` varchar(255) NOT NULL,
+  `Description` varchar(255) DEFAULT NULL,
   `Content` text NOT NULL,
   `AuthorID` bigint NOT NULL,
   `CategoryID` bigint NOT NULL,
@@ -63,13 +50,12 @@ CREATE TABLE `Articles` (
   `CreatedAt` datetime DEFAULT CURRENT_TIMESTAMP,
   `UpdatedAt` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`ArticleID`),
-  UNIQUE KEY `Slug` (`Slug`),
   KEY `AuthorID` (`AuthorID`),
   KEY `CategoryID` (`CategoryID`),
   FULLTEXT KEY `Title` (`Title`,`Slug`,`Content`),
   CONSTRAINT `Articles_ibfk_1` FOREIGN KEY (`AuthorID`) REFERENCES `Users` (`UserID`) ON DELETE CASCADE,
   CONSTRAINT `Articles_ibfk_2` FOREIGN KEY (`CategoryID`) REFERENCES `Categories` (`CategoryID`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=71 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 /*Table structure for table `Categories` */
 
@@ -105,7 +91,7 @@ CREATE TABLE `Comments` (
   CONSTRAINT `Comments_ibfk_1` FOREIGN KEY (`ArticleID`) REFERENCES `Articles` (`ArticleID`) ON DELETE CASCADE,
   CONSTRAINT `Comments_ibfk_2` FOREIGN KEY (`UserID`) REFERENCES `Users` (`UserID`) ON DELETE CASCADE,
   CONSTRAINT `Comments_ibfk_3` FOREIGN KEY (`ParentCommentID`) REFERENCES `Comments` (`CommentID`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=61 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 /*Table structure for table `EmailTemplates` */
 
@@ -119,7 +105,7 @@ CREATE TABLE `EmailTemplates` (
   `CreatedAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `UpdatedAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`TemplateID`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 /*Table structure for table `Likes` */
 
@@ -138,21 +124,7 @@ CREATE TABLE `Likes` (
   CONSTRAINT `Likes_ibfk_1` FOREIGN KEY (`UserID`) REFERENCES `Users` (`UserID`) ON DELETE CASCADE,
   CONSTRAINT `Likes_ibfk_2` FOREIGN KEY (`ArticleID`) REFERENCES `Articles` (`ArticleID`) ON DELETE CASCADE,
   CONSTRAINT `Likes_ibfk_3` FOREIGN KEY (`CommentID`) REFERENCES `Comments` (`CommentID`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
-/*Table structure for table `Tags` */
-
-DROP TABLE IF EXISTS `Tags`;
-
-CREATE TABLE `Tags` (
-  `TagID` bigint NOT NULL AUTO_INCREMENT,
-  `TagName` varchar(100) NOT NULL,
-  `CreatedAt` datetime DEFAULT CURRENT_TIMESTAMP,
-  `UpdatedAt` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`TagID`),
-  UNIQUE KEY `TagName` (`TagName`),
-  UNIQUE KEY `idx_tags_name` (`TagName`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 /*Table structure for table `UserTokens` */
 
@@ -168,7 +140,7 @@ CREATE TABLE `UserTokens` (
   PRIMARY KEY (`TokenID`),
   KEY `UserID` (`UserID`),
   CONSTRAINT `UserTokens_ibfk_1` FOREIGN KEY (`UserID`) REFERENCES `Users` (`UserID`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 /*Table structure for table `Users` */
 
@@ -187,7 +159,7 @@ CREATE TABLE `Users` (
   PRIMARY KEY (`UserID`),
   UNIQUE KEY `Email` (`Email`),
   UNIQUE KEY `idx_users_email` (`Email`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
